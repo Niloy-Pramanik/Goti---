@@ -19,7 +19,7 @@ interface InvitationDetails {
 export default function InviteAccept() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
-  const { token: authToken } = useAuthStore();
+  const { token: authToken, user, logout } = useAuthStore();
   const [error, setError] = useState('');
 
   const { data: invite, isLoading: inviteLoading, error: inviteError } = useQuery<InvitationDetails>({
@@ -171,14 +171,29 @@ export default function InviteAccept() {
                 </Link>
               </div>
             ) : authToken ? (
-              <button
-                onClick={() => acceptMutation.mutate()}
-                disabled={acceptMutation.isPending}
-                className="w-full bg-slate-900 text-white py-3 rounded-xl font-medium hover:bg-slate-800 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
-              >
-                {acceptMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
-                Accept Invitation
-              </button>
+              <div className="space-y-4">
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <p className="text-sm text-slate-500 mb-1">You are currently signed in as:</p>
+                  <p className="font-bold text-slate-900">{user?.email}</p>
+                </div>
+                <button
+                  onClick={() => acceptMutation.mutate()}
+                  disabled={acceptMutation.isPending}
+                  className="w-full bg-slate-900 text-white py-3 rounded-xl font-medium hover:bg-slate-800 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-sm"
+                >
+                  {acceptMutation.isPending && <Loader2 className="w-4 h-4 animate-spin" />}
+                  Accept as {user?.name}
+                </button>
+                <button
+                  onClick={() => {
+                    logout();
+                    window.location.href = `/register?invite=${token}`;
+                  }}
+                  className="w-full bg-white text-slate-700 py-3 rounded-xl font-medium hover:bg-slate-50 transition-all flex items-center justify-center gap-2 border border-slate-200"
+                >
+                  Create a new account instead
+                </button>
+              </div>
             ) : (
               <div className="space-y-3">
                 <Link

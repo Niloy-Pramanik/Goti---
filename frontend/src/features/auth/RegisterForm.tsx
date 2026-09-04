@@ -33,13 +33,13 @@ export default function RegisterForm() {
       if (inviteToken) {
         try {
           await apiClient.post(`/api/invites/${inviteToken}/accept`);
-          navigate('/dashboard');
+          window.location.href = '/dashboard';
         } catch (inviteErr: any) {
           setError(inviteErr.response?.data?.message || 'Account created but failed to join organization. Please try accepting the invite again.');
           setLoading(false);
         }
       } else {
-        navigate('/dashboard');
+        window.location.href = '/dashboard';
       }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to register. Please try again.');
