@@ -1,6 +1,6 @@
-# ProKoi - Project Management Tool
+# Goti - Project Management Tool
 
-**ProKoi** is a modern, team-focused project management system designed to organize your work around organizations, teams, and projects.
+**Goti** is a modern, team-focused project management system designed to organize your work around organizations, teams, and projects.
 
 > **Status: Phase 1 Completed** 
 > 
