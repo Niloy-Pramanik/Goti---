@@ -200,24 +200,19 @@ integration test proving the happy path and one proving the 403/permission-denie
 
 ## 10. Deployment Architecture
 
-**v1 target: single-VM Docker Compose**, appropriate for an academic project's scale.
+**v1 target: local development setup**, appropriate for an academic project's scale.
 
 ```
-docker-compose.yml
-├── postgres        (official image, named volume for persistence)
-├── backend          (multi-stage Dockerfile: Maven build → JRE runtime image)
-└── frontend         (multi-stage: Vite build → static files served via Nginx)
+Local Development
+├── backend          (Spring Boot with H2 in-memory database)
+└── frontend         (Vite dev server)
 ```
 
-- `backend` reads DB connection + JWT secret from environment variables injected by Compose
-  (`.env` file, gitignored).
-- `frontend`'s Nginx config reverse-proxies `/api/*` to the `backend` service, so the SPA and
-  API appear same-origin in production (avoids CORS entirely in prod; CORS config in
-  `SecurityConfig` is only exercised in local dev where frontend runs on a different port).
-- Flyway migrations run automatically on backend container startup (`spring.flyway.enabled=true`).
-- **Future (not v1):** CI pipeline (GitHub Actions) running backend + frontend test suites on
-  every PR, and a separate deploy step. Not required to satisfy Phase 1 scope, but the folder
-  structure above (`src/test/...`, Postman collection) is already CI-ready when you get there.
+- `backend` runs with H2 in-memory database (PostgreSQL mode) for development, configured in `application.yml`.
+- `frontend` runs on Vite dev server (port 5173) with API proxy to backend (port 8080).
+- Flyway migrations run automatically on backend startup (`spring.flyway.enabled=true`).
+- `.env` file stores JWT secret and other configuration (gitignored).
+- **Future:** Production deployment with PostgreSQL, CI pipeline (GitHub Actions) running test suites on every PR.
 
 ## 11. Key Architectural Trade-offs (Explicit)
 

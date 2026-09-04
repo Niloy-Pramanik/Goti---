@@ -8,7 +8,6 @@ Check an item only when it satisfies `definition-of-done.md`, not just when code
 - [ ] Spring Boot project scaffolded (`spring init`, Java 21 LTS, Web + Validation + Security + JDBC + PostgreSQL driver)
 - [ ] Flyway configured, `V1__init_phase1.sql` written with all Phase 1 tables
 - [ ] React project scaffolded (Vite + TypeScript), Tailwind configured
-- [ ] `docker-compose.yml` boots Postgres + backend + frontend locally
 - [ ] `.env.example` committed, `.env` gitignored
 
 ## 1. Authentication (PRD FR-1.x)
