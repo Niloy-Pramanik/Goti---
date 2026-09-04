@@ -45,8 +45,8 @@ function TeamItem({ team }: { team: Team }) {
   });
 
   return (
-    <div className="mb-6 perspective-1000 group min-w-0">
-      <div className={`bg-white/80 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[1.5rem] overflow-hidden transition-all duration-500 transform ${!isExpanded && 'rotate-x-[2deg] hover:rotate-x-0 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)]'}`}>
+    <div className="mb-6 group min-w-0">
+      <div className={`bg-white/80 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[1.5rem] overflow-hidden transition-all duration-500 ${!isExpanded && 'hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)]'}`}>
         <div 
           className="flex items-center justify-between p-6 cursor-pointer hover:bg-white/90 transition-colors gap-4"
           onClick={() => setIsExpanded(!isExpanded)}

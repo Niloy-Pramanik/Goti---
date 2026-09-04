@@ -34,12 +34,12 @@ export default function Landing() {
         </div>
 
         {/* Flat Face-On Detailed Hero App Mockup - Now with 3D Perspective */}
-        <div className="mt-20 w-full max-w-[1100px] relative z-10 mx-auto perspective-1000">
+        <div className="mt-20 w-full max-w-[1100px] relative z-10 mx-auto">
           
           {/* Subtle glowing background behind the mockup */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-brand-500/10 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
-          <div className="relative bg-[#FAFAFA] border border-slate-200/60 rounded-2xl shadow-2xl shadow-slate-200/50 flex overflow-hidden min-h-[600px] text-left transform rotate-x-[8deg] rotate-y-[-6deg] rotate-z-[1deg] hover:rotate-x-0 hover:rotate-y-0 hover:rotate-z-0 transition-transform duration-700 ease-out cursor-pointer group">
+          <div className="relative bg-[#FAFAFA] border border-slate-200/60 rounded-2xl shadow-2xl shadow-slate-200/50 flex overflow-hidden min-h-[600px] text-left hover:shadow-3xl transition-shadow duration-700 ease-out cursor-pointer group">
             
 
             

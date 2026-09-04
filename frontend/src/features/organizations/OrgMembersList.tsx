@@ -45,7 +45,7 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
   }
 
   return (
-    <div className="bg-white rounded-[2rem] border border-slate-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden min-w-0">
+    <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden relative z-0">
       {/* Header */}
       <div className="flex justify-between items-center p-8 border-b border-white/50">
         <div>
