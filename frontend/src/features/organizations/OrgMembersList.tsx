@@ -69,6 +69,8 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
     );
   }
 
+  const displayMembers = members?.filter(member => member.role !== 'ADMIN') || [];
+
   return (
     <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden relative z-0">
       {/* Header */}
@@ -94,13 +96,13 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
 
       {/* List */}
       <div className="p-8">
-        {members?.length === 0 ? (
+        {displayMembers.length === 0 ? (
           <div className="text-center py-12">
-            <p className="text-slate-500">No members found.</p>
+            <p className="text-slate-500">No invited members found.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {members?.map((member) => (
+            {displayMembers.map((member) => (
               <div key={member.userId} className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-lg border border-slate-200">
                   {member.name.charAt(0).toUpperCase()}
