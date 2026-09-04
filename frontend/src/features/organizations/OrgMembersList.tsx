@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { Loader2, UserPlus, Users } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { Loader2, UserPlus, Users, AlertTriangle } from 'lucide-react';
 import apiClient from '../../api/client';
 import AddOrgMemberModal from './AddOrgMemberModal';
 
@@ -19,6 +19,31 @@ interface OrgMembersListProps {
 
 export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const removeMemberMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      await apiClient.delete(`/api/organizations/${orgId}/members/${userId}`);
+    },
+    onSuccess: () => {
+      window.location.reload();
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || 'Failed to remove member');
+    }
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: string }) => {
+      await apiClient.put(`/api/organizations/${orgId}/members/${userId}`, { role: newRole });
+    },
+    onSuccess: () => {
+      window.location.reload();
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || 'Failed to update role');
+    }
+  });
 
   const { data: members, isLoading, error } = useQuery<OrgMember[]>({
     queryKey: ['orgMembers', orgId],
@@ -93,6 +118,29 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                   </div>
                   <p className="text-xs font-medium text-slate-500 truncate">{member.email}</p>
                 </div>
+                {myRole === 'ADMIN' && (
+                  <div className="flex items-center gap-2 ml-auto">
+                    <button 
+                      onClick={() => {
+                        const newRole = member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN';
+                        updateRoleMutation.mutate({ userId: member.userId, newRole });
+                      }}
+                      className="text-xs font-bold px-3 py-1.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200/60 disabled:opacity-50"
+                      disabled={updateRoleMutation.isPending}
+                    >
+                      {member.role === 'ADMIN' ? 'Make Member' : 'Make Admin'}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        removeMemberMutation.mutate(member.userId);
+                      }}
+                      className="text-xs font-bold px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100 disabled:opacity-50"
+                      disabled={removeMemberMutation.isPending}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>

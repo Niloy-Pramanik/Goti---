@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, UserPlus, Users, X } from 'lucide-react';
 import apiClient from '../../api/client';
 import AddTeamMemberModal from './AddTeamMemberModal';
@@ -17,10 +17,37 @@ interface TeamMembersModalProps {
   onClose: () => void;
   teamId: string;
   teamName: string;
+  myRole?: string;
+  orgRole?: string;
 }
 
-export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: TeamMembersModalProps) {
+export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, myRole, orgRole }: TeamMembersModalProps) {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
+  const queryClient = useQueryClient();
+
+  const removeMemberMutation = useMutation({
+    mutationFn: async (userId: string) => {
+      await apiClient.delete(`/api/teams/${teamId}/members/${userId}`);
+    },
+    onSuccess: () => {
+      window.location.reload();
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || 'Failed to remove member');
+    }
+  });
+
+  const updateRoleMutation = useMutation({
+    mutationFn: async ({ userId, newRole }: { userId: string, newRole: string }) => {
+      await apiClient.put(`/api/teams/${teamId}/members/${userId}`, { role: newRole });
+    },
+    onSuccess: () => {
+      window.location.reload();
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || 'Failed to update role');
+    }
+  });
 
   const { data: members, isLoading, error } = useQuery<TeamMember[]>({
     queryKey: ['teamMembers', teamId],
@@ -56,13 +83,15 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
 
         <div className="p-6 flex justify-between items-center bg-slate-50 border-b border-slate-100">
           <p className="text-sm font-medium text-slate-600">Manage who has access to this team.</p>
-          <button 
-            onClick={() => setIsAddMemberModalOpen(true)}
-            className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
-          >
-            <UserPlus className="w-4 h-4" />
-            Add Member
-          </button>
+          {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
+            <button 
+              onClick={() => setIsAddMemberModalOpen(true)}
+              className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
+            >
+              <UserPlus className="w-4 h-4" />
+              Add Member
+            </button>
+          )}
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
@@ -98,6 +127,29 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName }: 
                     </div>
                     <p className="text-[11px] font-medium text-slate-500 truncate">{member.email}</p>
                   </div>
+                  {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
+                    <div className="flex items-center gap-1.5 ml-auto">
+                      <button 
+                        onClick={() => {
+                          const newRole = member.role === 'LEAD' ? 'MEMBER' : 'LEAD';
+                          updateRoleMutation.mutate({ userId: member.userId, newRole });
+                        }}
+                        className="text-[10px] font-bold px-2 py-1 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors border border-slate-200/60 disabled:opacity-50"
+                        disabled={updateRoleMutation.isPending}
+                      >
+                        {member.role === 'LEAD' ? 'Make Member' : 'Make Lead'}
+                      </button>
+                      <button 
+                        onClick={() => {
+                          removeMemberMutation.mutate(member.userId);
+                        }}
+                        className="text-[10px] font-bold px-2 py-1 text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors border border-red-100 disabled:opacity-50"
+                        disabled={removeMemberMutation.isPending}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
