@@ -104,29 +104,32 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {members?.map((member) => (
-                <div key={member.userId} className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm flex items-center gap-3">
-                  <div className="w-10 h-10 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-base border border-slate-200">
-                    {member.name.charAt(0).toUpperCase()}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-0.5">
-                      <h4 className="font-bold text-slate-900 truncate text-sm">{member.name}</h4>
-                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border whitespace-nowrap shrink-0 ${
-                        member.role === 'LEAD' 
-                          ? 'bg-purple-50 text-purple-700 border-purple-200/60' 
-                          : 'bg-slate-50 text-slate-600 border-slate-200/60'
-                      }`}>
-                        {member.role}
-                      </span>
+                <div key={member.userId} className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 shrink-0 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-base border border-slate-200">
+                      {member.name.charAt(0).toUpperCase()}
                     </div>
-                    <a href={`mailto:${member.email}`} title={member.email} className="block text-xs font-medium text-slate-500 truncate hover:text-slate-700 hover:underline">
-                      {member.email}
-                    </a>
-                    {member.joinedAt && (
-                      <p className="text-[10px] font-medium text-slate-400 mt-1">
-                        Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </p>
-                    )}
+                    <div className="min-w-0 flex flex-col justify-center">
+                      <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                        <span className="font-bold text-slate-900 text-sm whitespace-nowrap">{member.name}</span>
+                        <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border whitespace-nowrap ${
+                          member.role === 'LEAD' 
+                            ? 'bg-purple-50 text-purple-700 border-purple-200/60' 
+                            : 'bg-slate-50 text-slate-600 border-slate-200/60'
+                        }`}>
+                          {member.role}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs font-medium text-slate-500 flex-wrap">
+                        <a href={`mailto:${member.email}`} className="hover:text-slate-700 hover:underline">{member.email}</a>
+                        {member.joinedAt && (
+                          <>
+                            <span className="text-slate-300">&middot;</span>
+                            <span>Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
                   </div>
                   {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
                     <div className="flex items-center gap-1.5 ml-auto shrink-0">
