@@ -5,14 +5,16 @@ import { useAuthStore } from '../../store/authStore';
 import { LayoutGrid, Loader2 } from 'lucide-react';
 
 export default function LoginForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite');
+  const inviteEmail = searchParams.get('email');
   const setAuth = useAuthStore((state) => state.setAuth);
+
+  const [email, setEmail] = useState(inviteEmail || '');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,9 +32,8 @@ export default function LoginForm() {
           await apiClient.post(`/api/invites/${inviteToken}/accept`);
           navigate('/dashboard');
         } catch (inviteErr: any) {
-          // Login succeeded but invite acceptance failed
-          // Still navigate to dashboard
-          navigate('/dashboard');
+          setError(inviteErr.response?.data?.message || 'Login succeeded but failed to join organization. Please try accepting the invite again.');
+          setLoading(false);
         }
       } else {
         navigate('/dashboard');
@@ -78,7 +79,7 @@ export default function LoginForm() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-xl border-0 py-2.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6 bg-white/50 transition-all"
+                  className="block w-full rounded-xl border-0 py-2.5 px-3 text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6 transition-all bg-white/50"
                   placeholder="you@company.com"
                 />
               </div>
@@ -132,7 +133,7 @@ export default function LoginForm() {
 
             <div className="mt-6">
               <Link
-                to="/register"
+                to={inviteToken ? `/register?invite=${inviteToken}&email=${encodeURIComponent(inviteEmail || '')}` : '/register'}
                 className="flex w-full justify-center rounded-full bg-slate-50 px-3 py-2.5 text-sm font-semibold text-slate-900 shadow-sm ring-1 ring-inset ring-slate-200 hover:bg-slate-100 transition-all"
               >
                 Create an account
