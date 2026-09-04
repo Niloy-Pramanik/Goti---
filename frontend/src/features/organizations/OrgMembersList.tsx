@@ -80,18 +80,8 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
             <Users className="w-6 h-6 text-slate-400" />
             Members
           </h2>
-          <p className="text-slate-500 font-medium mt-1">Manage organization access and roles.</p>
+          <p className="text-slate-500 font-medium mt-1">People with access to this organization.</p>
         </div>
-        
-        {myRole === 'ADMIN' && (
-          <button 
-            onClick={() => setIsAddMemberModalOpen(true)}
-            className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
-          >
-            <UserPlus className="w-4 h-4" />
-            Invite Member
-          </button>
-        )}
       </div>
 
       {/* List */}
@@ -119,30 +109,10 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                     </span>
                   </div>
                   <p className="text-xs font-medium text-slate-500 truncate">{member.email}</p>
+                  <p className="text-[10px] font-medium text-slate-400 mt-1">
+                    Joined: {new Date(member.joinedAt).toLocaleDateString()}
+                  </p>
                 </div>
-                {myRole === 'ADMIN' && (
-                  <div className="flex items-center gap-2 ml-auto">
-                    <button 
-                      onClick={() => {
-                        const newRole = member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN';
-                        updateRoleMutation.mutate({ userId: member.userId, newRole });
-                      }}
-                      className="text-xs font-bold px-3 py-1.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200/60 disabled:opacity-50"
-                      disabled={updateRoleMutation.isPending}
-                    >
-                      {member.role === 'ADMIN' ? 'Make Member' : 'Make Admin'}
-                    </button>
-                    <button 
-                      onClick={() => {
-                        removeMemberMutation.mutate(member.userId);
-                      }}
-                      className="text-xs font-bold px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100 disabled:opacity-50"
-                      disabled={removeMemberMutation.isPending}
-                    >
-                      Remove
-                    </button>
-                  </div>
-                )}
               </div>
             ))}
           </div>
