@@ -35,8 +35,13 @@ public class OrganizationMemberRepository {
             try {
                 m.setUserName(rs.getString("user_name"));
                 m.setUserEmail(rs.getString("user_email"));
+                if (rs.getTimestamp("joined_at") != null) {
+                    m.setJoinedAt(rs.getTimestamp("joined_at").toLocalDateTime());
+                } else {
+                    m.setJoinedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                }
             } catch (SQLException ignored) {
-                // Not all queries join with users table
+                // Not all queries join with users table or have joined_at
             }
             return m;
         }
@@ -53,14 +58,22 @@ public class OrganizationMemberRepository {
 
     public Optional<OrganizationMember> findByOrgIdAndUserId(UUID orgId, UUID userId) {
         var results = jdbc.query(
-                "SELECT org_id, user_id, role, created_at FROM organization_members " +
+                "SELECT org_id, user_id, role, created_at, joined_at FROM organization_members " +
                 "WHERE org_id = ? AND user_id = ?",
-                (rs, rowNum) -> new OrganizationMember(
-                        UUID.fromString(rs.getString("org_id")),
-                        UUID.fromString(rs.getString("user_id")),
-                        rs.getString("role"),
-                        rs.getTimestamp("created_at").toLocalDateTime()
-                ),
+                (rs, rowNum) -> {
+                    OrganizationMember m = new OrganizationMember(
+                            UUID.fromString(rs.getString("org_id")),
+                            UUID.fromString(rs.getString("user_id")),
+                            rs.getString("role"),
+                            rs.getTimestamp("created_at").toLocalDateTime()
+                    );
+                    if (rs.getTimestamp("joined_at") != null) {
+                        m.setJoinedAt(rs.getTimestamp("joined_at").toLocalDateTime());
+                    } else {
+                        m.setJoinedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                    }
+                    return m;
+                },
                 orgId, userId
         );
         return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
@@ -88,13 +101,26 @@ public class OrganizationMemberRepository {
      */
     public List<OrganizationMember> findByOrgId(UUID orgId) {
         return jdbc.query(
-                "SELECT om.org_id, om.user_id, om.role, om.created_at, " +
+                "SELECT om.org_id, om.user_id, om.role, om.created_at, om.joined_at, " +
                 "u.name AS user_name, u.email AS user_email " +
                 "FROM organization_members om " +
                 "INNER JOIN users u ON om.user_id = u.id " +
                 "WHERE om.org_id = ? " +
                 "ORDER BY om.created_at ASC",
                 ROW_MAPPER, orgId
+        );
+    }
+    public void updateRole(UUID orgId, UUID userId, String role) {
+        jdbc.update(
+                "UPDATE organization_members SET role = ? WHERE org_id = ? AND user_id = ?",
+                role, orgId, userId
+        );
+    }
+
+    public void delete(UUID orgId, UUID userId) {
+        jdbc.update(
+                "DELETE FROM organization_members WHERE org_id = ? AND user_id = ?",
+                orgId, userId
         );
     }
 }

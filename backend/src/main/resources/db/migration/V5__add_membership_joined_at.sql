@@ -1,0 +1,3 @@
+-- V5__add_membership_joined_at.sql
+ALTER TABLE organization_members ADD COLUMN joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;
+ALTER TABLE team_members ADD COLUMN joined_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP;

@@ -119,7 +119,14 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                         {member.role}
                       </span>
                     </div>
-                    <p className="text-[11px] font-medium text-slate-500 truncate">{member.email}</p>
+                    <a href={`mailto:${member.email}`} className="text-xs font-medium text-slate-500 truncate hover:text-slate-700 hover:underline">
+                      {member.email}
+                    </a>
+                    {member.joinedAt && (
+                      <p className="text-[10px] font-medium text-slate-400 mt-1">
+                        Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </p>
+                    )}
                   </div>
                   {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
                     <div className="flex items-center gap-1.5 ml-auto">

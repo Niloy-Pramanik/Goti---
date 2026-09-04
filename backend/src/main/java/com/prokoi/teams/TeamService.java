@@ -145,7 +145,7 @@ public class TeamService {
         return teamMemberRepository.findByTeamId(teamId).stream()
                 .map(m -> new TeamMemberResponse(
                         m.getUserId(), m.getUserName(), m.getUserEmail(),
-                        m.getRole(), m.getCreatedAt()
+                        m.getRole(), m.getJoinedAt()
                 ))
                 .collect(Collectors.toList());
     }
@@ -170,5 +170,42 @@ public class TeamService {
     public Team getTeamEntity(UUID teamId) {
         return teamRepository.findById(teamId)
                 .orElseThrow(() -> new NotFoundException("Team not found"));
+    }
+
+    @Transactional
+    public void updateMemberRole(UUID teamId, UUID targetUserId, String newRole, UUID actorId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new NotFoundException("Team not found"));
+
+        boolean isOrgAdmin = orgService.isAdmin(team.getOrgId(), actorId);
+        boolean isLead = isLead(teamId, actorId);
+
+        if (!isLead && !isOrgAdmin) {
+            throw new ForbiddenException("Only team LEADs or org ADMINs can update team member roles");
+        }
+        if (!teamMemberRepository.isMember(teamId, targetUserId)) {
+            throw new NotFoundException("User is not a member of this team");
+        }
+        teamMemberRepository.updateRole(teamId, targetUserId, newRole);
+    }
+
+    @Transactional
+    public void removeMember(UUID teamId, UUID targetUserId, UUID actorId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new NotFoundException("Team not found"));
+
+        boolean isOrgAdmin = orgService.isAdmin(team.getOrgId(), actorId);
+        boolean isLead = isLead(teamId, actorId);
+
+        if (!isLead && !isOrgAdmin) {
+            throw new ForbiddenException("Only team LEADs or org ADMINs can remove members");
+        }
+        if (actorId.equals(targetUserId)) {
+            throw new ConflictException("Cannot remove yourself");
+        }
+        if (!teamMemberRepository.isMember(teamId, targetUserId)) {
+            throw new NotFoundException("User is not a member of this team");
+        }
+        teamMemberRepository.delete(teamId, targetUserId);
     }
 }

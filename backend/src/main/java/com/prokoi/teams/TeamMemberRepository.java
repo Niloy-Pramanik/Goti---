@@ -33,6 +33,11 @@ public class TeamMemberRepository {
             try {
                 m.setUserName(rs.getString("user_name"));
                 m.setUserEmail(rs.getString("user_email"));
+                if (rs.getTimestamp("joined_at") != null) {
+                    m.setJoinedAt(rs.getTimestamp("joined_at").toLocalDateTime());
+                } else {
+                    m.setJoinedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                }
             } catch (SQLException ignored) {
                 // Not all queries join with users table
             }
@@ -71,13 +76,26 @@ public class TeamMemberRepository {
      */
     public List<TeamMember> findByTeamId(UUID teamId) {
         return jdbc.query(
-                "SELECT tm.team_id, tm.user_id, tm.role, tm.created_at, " +
+                "SELECT tm.team_id, tm.user_id, tm.role, tm.created_at, tm.joined_at, " +
                 "u.name AS user_name, u.email AS user_email " +
                 "FROM team_members tm " +
                 "INNER JOIN users u ON tm.user_id = u.id " +
                 "WHERE tm.team_id = ? " +
                 "ORDER BY tm.created_at ASC",
                 ROW_MAPPER, teamId
+        );
+    }
+    public void updateRole(UUID teamId, UUID userId, String role) {
+        jdbc.update(
+                "UPDATE team_members SET role = ? WHERE team_id = ? AND user_id = ?",
+                role, teamId, userId
+        );
+    }
+
+    public void delete(UUID teamId, UUID userId) {
+        jdbc.update(
+                "DELETE FROM team_members WHERE team_id = ? AND user_id = ?",
+                teamId, userId
         );
     }
 }

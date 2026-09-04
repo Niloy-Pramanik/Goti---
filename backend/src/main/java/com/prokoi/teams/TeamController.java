@@ -65,4 +65,25 @@ public class TeamController {
         UUID userId = (UUID) auth.getPrincipal();
         return ResponseEntity.ok(teamService.listMembers(teamId, userId));
     }
+
+    @PutMapping("/api/teams/{teamId}/members/{userId}")
+    public ResponseEntity<Void> updateMemberRole(
+            @PathVariable UUID teamId,
+            @PathVariable UUID userId,
+            @Valid @RequestBody UpdateTeamMemberRoleRequest request,
+            Authentication auth) {
+        UUID actorId = (UUID) auth.getPrincipal();
+        teamService.updateMemberRole(teamId, userId, request.getRole(), actorId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/api/teams/{teamId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable UUID teamId,
+            @PathVariable UUID userId,
+            Authentication auth) {
+        UUID actorId = (UUID) auth.getPrincipal();
+        teamService.removeMember(teamId, userId, actorId);
+        return ResponseEntity.noContent().build();
+    }
 }

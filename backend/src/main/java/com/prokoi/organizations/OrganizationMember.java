@@ -12,6 +12,7 @@ public class OrganizationMember {
     private UUID userId;
     private String role;
     private LocalDateTime createdAt;
+    private LocalDateTime joinedAt;
 
     // Enriched fields for display purposes
     private String userName;
@@ -43,4 +44,7 @@ public class OrganizationMember {
 
     public String getUserEmail() { return userEmail; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+
+    public LocalDateTime getJoinedAt() { return joinedAt; }
+    public void setJoinedAt(LocalDateTime joinedAt) { this.joinedAt = joinedAt; }
 }

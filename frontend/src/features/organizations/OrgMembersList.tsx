@@ -109,7 +109,14 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                       {member.role}
                     </span>
                   </div>
-                  <p className="text-xs font-medium text-slate-500 truncate">{member.email}</p>
+                  <a href={`mailto:${member.email}`} className="text-xs font-medium text-slate-500 truncate hover:text-slate-700 hover:underline">
+                    {member.email}
+                  </a>
+                  {member.joinedAt && (
+                    <p className="text-[10px] font-medium text-slate-400 mt-1">
+                      Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </p>
+                  )}
                 </div>
                 {myRole === 'ADMIN' && (
                   <div className="flex items-center gap-2 ml-auto">

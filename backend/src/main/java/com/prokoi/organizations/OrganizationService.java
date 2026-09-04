@@ -124,7 +124,7 @@ public class OrganizationService {
         return memberRepository.findByOrgId(orgId).stream()
                 .map(m -> new OrgMemberResponse(
                         m.getUserId(), m.getUserName(), m.getUserEmail(),
-                        m.getRole(), m.getCreatedAt()
+                        m.getRole(), m.getJoinedAt()
                 ))
                 .collect(Collectors.toList());
     }
