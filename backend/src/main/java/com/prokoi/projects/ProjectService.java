@@ -118,4 +118,12 @@ public class ProjectService {
 
         projectRepository.deleteById(projectId);
     }
+    
+    /**
+     * Get project entity by ID for internal use.
+     */
+    public Project getProjectEntity(UUID projectId) {
+        return projectRepository.findById(projectId)
+                .orElseThrow(() -> new NotFoundException("Project not found"));
+    }
 }
