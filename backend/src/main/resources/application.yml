@@ -3,10 +3,15 @@ spring:
     name: prokoi-backend
 
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/prokoi}
-    username: ${DB_USERNAME:prokoi}
-    password: ${DB_PASSWORD:prokoi}
-    driver-class-name: org.postgresql.Driver
+    url: jdbc:h2:mem:prokoi;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
+    driverClassName: org.h2.Driver
+    username: sa
+    password: password
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
 
   flyway:
     enabled: true

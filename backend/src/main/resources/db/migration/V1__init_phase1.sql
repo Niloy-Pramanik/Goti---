@@ -1,12 +1,9 @@
 -- Phase 1 schema: users, organizations, organization_members, teams, team_members, projects
 -- No Phase 2 tables (milestones, issues, progress_logs)
 
--- Enable UUID extension
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-
 -- Users
 CREATE TABLE users (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id          UUID PRIMARY KEY DEFAULT RANDOM_UUID(),
     name        VARCHAR(255) NOT NULL,
     email       VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
@@ -17,7 +14,7 @@ CREATE UNIQUE INDEX idx_users_email ON users(email);
 
 -- Organizations
 CREATE TABLE organizations (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id          UUID PRIMARY KEY DEFAULT RANDOM_UUID(),
     name        VARCHAR(255) NOT NULL,
     description TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
@@ -34,7 +31,7 @@ CREATE TABLE organization_members (
 
 -- Teams
 CREATE TABLE teams (
-    id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id          UUID PRIMARY KEY DEFAULT RANDOM_UUID(),
     name        VARCHAR(255) NOT NULL,
     org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
@@ -53,7 +50,7 @@ CREATE TABLE team_members (
 
 -- Projects
 CREATE TABLE projects (
-    id           UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id           UUID PRIMARY KEY DEFAULT RANDOM_UUID(),
     name         VARCHAR(255) NOT NULL,
     description  TEXT,
     team_id      UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
