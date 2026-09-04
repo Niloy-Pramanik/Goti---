@@ -1,6 +1,11 @@
 #!/bin/bash
 echo "Starting Goti Backend (Spring Boot) and Frontend (Vite)..."
 
+# Clean up any lingering processes on our required ports
+echo "Stopping any existing instances on ports 8080 and 5174..."
+lsof -ti:8080 | xargs kill -9 2>/dev/null || true
+lsof -ti:5174 | xargs kill -9 2>/dev/null || true
+
 # Start the Spring Boot backend in the background
 cd backend
 ./mvnw spring-boot:run &
