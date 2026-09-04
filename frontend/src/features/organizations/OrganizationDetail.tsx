@@ -13,7 +13,7 @@ interface Organization {
   id: string;
   name: string;
   description: string;
-  myRole: string;
+  userRole: string;
 }
 
 interface Team {
@@ -242,12 +242,12 @@ export default function OrganizationDetail() {
           )}
           <div className="mt-4 flex gap-2">
             <span className="bg-slate-900 text-white text-xs font-bold px-3 py-1 rounded-md uppercase tracking-wide">
-              {org.myRole}
+              {org.userRole}
             </span>
           </div>
         </div>
         
-        {org.myRole === 'ADMIN' && (
+        {org.userRole === 'ADMIN' && (
           <button
             onClick={handleDelete}
             disabled={isDeleting}
@@ -266,7 +266,7 @@ export default function OrganizationDetail() {
         <div>
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Teams</h2>
-            {org.myRole === 'ADMIN' && (
+            {org.userRole === 'ADMIN' && (
               <button 
                 onClick={() => setIsTeamModalOpen(true)}
                 className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
@@ -288,7 +288,7 @@ export default function OrganizationDetail() {
               </div>
               <h3 className="font-extrabold text-slate-900 mb-2 text-xl">No teams found</h3>
               <p className="text-slate-500 text-base mb-6 font-medium">Create a team to organize projects and members.</p>
-              {org.myRole === 'ADMIN' && (
+              {org.userRole === 'ADMIN' && (
                 <button 
                   onClick={() => setIsTeamModalOpen(true)}
                   className="bg-slate-900 text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-slate-800 hover:shadow-lg transition-all"
@@ -300,7 +300,7 @@ export default function OrganizationDetail() {
           ) : (
             <div className="space-y-2">
               {teams?.map((team) => (
-                <TeamItem key={team.id} team={team} orgRole={org.myRole} />
+                <TeamItem key={team.id} team={team} orgRole={org.userRole} />
               ))}
             </div>
           )}
@@ -308,7 +308,7 @@ export default function OrganizationDetail() {
       </div>
 
       <div className="mt-12 relative">
-        <OrgMembersList orgId={orgId as string} myRole={org.myRole} />
+        <OrgMembersList orgId={orgId as string} myRole={org.userRole} />
       </div>
 
       <CreateTeamModal 
