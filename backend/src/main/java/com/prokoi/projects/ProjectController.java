@@ -51,7 +51,7 @@ public class ProjectController {
     @PatchMapping("/api/projects/{projectId}")
     public ResponseEntity<ProjectResponse> updateLinks(
             @PathVariable UUID projectId,
-            @Valid @RequestBody UpdateProjectLinksRequest request,
+            @Valid @RequestBody UpdateProjectRequest request,
             Authentication auth) {
         UUID userId = (UUID) auth.getPrincipal();
         ProjectResponse response = projectService.updateProjectLinks(projectId, request, userId);

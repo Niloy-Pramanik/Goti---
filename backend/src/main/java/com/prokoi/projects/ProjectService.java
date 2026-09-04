@@ -84,7 +84,7 @@ public class ProjectService {
      * Update resource links. LEAD only. (FR-4.3)
      */
     @Transactional
-    public ProjectResponse updateProjectLinks(UUID projectId, UpdateProjectLinksRequest request, UUID actorId) {
+    public ProjectResponse updateProjectLinks(UUID projectId, UpdateProjectRequest request, UUID actorId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("Project not found"));
 
