@@ -3,7 +3,7 @@
 
 -- Users
 CREATE TABLE users (
-    id          UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
     email       VARCHAR(255) NOT NULL UNIQUE,
     password_hash VARCHAR(255) NOT NULL,
@@ -14,7 +14,7 @@ CREATE UNIQUE INDEX idx_users_email ON users(email);
 
 -- Organizations
 CREATE TABLE organizations (
-    id          UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
     description TEXT,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
@@ -31,7 +31,7 @@ CREATE TABLE organization_members (
 
 -- Teams
 CREATE TABLE teams (
-    id          UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+    id          UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name        VARCHAR(255) NOT NULL,
     org_id      UUID NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
     created_at  TIMESTAMP NOT NULL DEFAULT NOW()
@@ -50,7 +50,7 @@ CREATE TABLE team_members (
 
 -- Projects
 CREATE TABLE projects (
-    id           UUID DEFAULT RANDOM_UUID() PRIMARY KEY,
+    id           UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name         VARCHAR(255) NOT NULL,
     description  TEXT,
     team_id      UUID NOT NULL REFERENCES teams(id) ON DELETE CASCADE,

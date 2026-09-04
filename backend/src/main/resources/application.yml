@@ -3,15 +3,10 @@ spring:
     name: prokoi-backend
 
   datasource:
-    url: jdbc:h2:mem:prokoi;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH
-    driverClassName: org.h2.Driver
-    username: sa
-    password: password
-
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
+    url: jdbc:postgresql://localhost:5432/prokoi
+    driverClassName: org.postgresql.Driver
+    username: prokoi
+    password: 
 
   flyway:
     enabled: true
@@ -27,3 +22,5 @@ app:
   jwt:
     secret: ${JWT_SECRET:default-dev-secret-change-me-in-production-min-32-chars!!}
     expiration-ms: 86400000  # 24 hours
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5174}
