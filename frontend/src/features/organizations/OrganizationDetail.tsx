@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, Building2, Users, Loader2, Plus, LayoutGrid, ChevronRight, ChevronDown, ExternalLink } from 'lucide-react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ArrowLeft, Building2, Users, Loader2, Plus, LayoutGrid, ChevronRight, ChevronDown, ExternalLink, Trash2 } from 'lucide-react';
 import apiClient from '../../api/client';
+import { useNavigate } from 'react-router-dom';
 import CreateTeamModal from '../teams/CreateTeamModal';
 import CreateProjectModal from '../projects/CreateProjectModal';
 import OrgMembersList from './OrgMembersList';
@@ -30,7 +31,7 @@ interface Project {
   storageLink: string;
 }
 
-function TeamItem({ team }: { team: Team }) {
+function TeamItem({ team, orgRole }: { team: Team, orgRole: string }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false);
   const [isTeamMembersModalOpen, setIsTeamMembersModalOpen] = useState(false);
@@ -75,16 +76,18 @@ function TeamItem({ team }: { team: Team }) {
               <Users className="w-4 h-4" />
               Members
             </button>
-            <button 
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsCreateProjectModalOpen(true);
-              }}
-              className="flex items-center gap-1.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-2 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95"
-            >
-              <Plus className="w-4 h-4" />
-              Add Project
-            </button>
+            {(team.userRole === 'LEAD' || orgRole === 'ADMIN') && (
+              <button 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCreateProjectModalOpen(true);
+                }}
+                className="flex items-center gap-1.5 text-sm font-bold text-white bg-slate-900 hover:bg-slate-800 px-4 py-2 rounded-xl transition-all shadow-md hover:shadow-lg active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                Add Project
+              </button>
+            )}
             <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isExpanded ? 'bg-slate-100 text-slate-900' : 'bg-slate-50 text-slate-400'}`}>
               {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
             </div>
@@ -155,6 +158,8 @@ function TeamItem({ team }: { team: Team }) {
         onClose={() => setIsTeamMembersModalOpen(false)}
         teamId={team.id}
         teamName={team.name}
+        myRole={team.userRole}
+        orgRole={orgRole}
       />
     </div>
   );
@@ -163,6 +168,30 @@ function TeamItem({ team }: { team: Team }) {
 export default function OrganizationDetail() {
   const { orgId } = useParams<{ orgId: string }>();
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const deleteOrgMutation = useMutation({
+    mutationFn: async () => {
+      await apiClient.delete(`/api/organizations/${orgId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['organizations'] });
+      navigate('/dashboard');
+    },
+    onError: (error: any) => {
+      alert(error.response?.data?.message || 'Failed to delete organization');
+      setIsDeleting(false);
+    }
+  });
+
+  const handleDelete = () => {
+    if (window.confirm('Are you sure you want to delete this organization? This action cannot be undone and will delete all teams, projects, and data within it.')) {
+      setIsDeleting(true);
+      deleteOrgMutation.mutate();
+    }
+  };
 
   const { data: org, isLoading: orgLoading } = useQuery<Organization>({
     queryKey: ['organization', orgId],
@@ -201,7 +230,7 @@ export default function OrganizationDetail() {
         <Link to="/dashboard" className="p-3 text-slate-500 hover:text-slate-900 bg-white border border-slate-200 rounded-2xl hover:shadow-md hover:-translate-y-0.5 transition-all mt-1">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <div>
+        <div className="flex-grow">
           <h1 className="text-3xl font-extrabold text-slate-900 flex items-center gap-3 tracking-tight">
             <div className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-sm">
               <Building2 className="w-5 h-5" />
@@ -217,6 +246,17 @@ export default function OrganizationDetail() {
             </span>
           </div>
         </div>
+        
+        {org.myRole === 'ADMIN' && (
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="flex items-center gap-2 bg-red-50 text-red-600 px-4 py-2 rounded-xl text-sm font-bold hover:bg-red-100 transition-all border border-red-100 shadow-sm whitespace-nowrap disabled:opacity-50"
+          >
+            {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+            Delete Organization
+          </button>
+        )}
       </div>
 
       {/* Teams Section */}
@@ -226,13 +266,15 @@ export default function OrganizationDetail() {
         <div>
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Teams</h2>
-            <button 
-              onClick={() => setIsTeamModalOpen(true)}
-              className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
-            >
-              <Plus className="w-4 h-4" />
-              New Team
-            </button>
+            {org.myRole === 'ADMIN' && (
+              <button 
+                onClick={() => setIsTeamModalOpen(true)}
+                className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
+              >
+                <Plus className="w-4 h-4" />
+                New Team
+              </button>
+            )}
           </div>
 
           {teamsLoading ? (
@@ -246,17 +288,19 @@ export default function OrganizationDetail() {
               </div>
               <h3 className="font-extrabold text-slate-900 mb-2 text-xl">No teams found</h3>
               <p className="text-slate-500 text-base mb-6 font-medium">Create a team to organize projects and members.</p>
-              <button 
-                onClick={() => setIsTeamModalOpen(true)}
-                className="bg-slate-900 text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-slate-800 hover:shadow-lg transition-all"
-              >
-                + Create Team
-              </button>
+              {org.myRole === 'ADMIN' && (
+                <button 
+                  onClick={() => setIsTeamModalOpen(true)}
+                  className="bg-slate-900 text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-slate-800 hover:shadow-lg transition-all"
+                >
+                  + Create Team
+                </button>
+              )}
             </div>
           ) : (
             <div className="space-y-2">
               {teams?.map((team) => (
-                <TeamItem key={team.id} team={team} />
+                <TeamItem key={team.id} team={team} orgRole={org.myRole} />
               ))}
             </div>
           )}

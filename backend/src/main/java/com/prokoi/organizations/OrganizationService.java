@@ -142,4 +142,37 @@ public class OrganizationService {
     public boolean isMember(UUID orgId, UUID userId) {
         return memberRepository.isMember(orgId, userId);
     }
+
+    @Transactional
+    public void updateMemberRole(UUID orgId, UUID targetUserId, String newRole, UUID actorId) {
+        if (!isAdmin(orgId, actorId)) {
+            throw new ForbiddenException("Only organization ADMINs can update member roles");
+        }
+        if (!memberRepository.isMember(orgId, targetUserId)) {
+            throw new NotFoundException("User is not a member of this organization");
+        }
+        memberRepository.updateRole(orgId, targetUserId, newRole);
+    }
+
+    @Transactional
+    public void removeMember(UUID orgId, UUID targetUserId, UUID actorId) {
+        if (!isAdmin(orgId, actorId)) {
+            throw new ForbiddenException("Only organization ADMINs can remove members");
+        }
+        if (actorId.equals(targetUserId)) {
+            throw new ConflictException("Cannot remove yourself");
+        }
+        if (!memberRepository.isMember(orgId, targetUserId)) {
+            throw new NotFoundException("User is not a member of this organization");
+        }
+        memberRepository.delete(orgId, targetUserId);
+    }
+
+    @Transactional
+    public void deleteOrganization(UUID orgId, UUID actorId) {
+        if (!isAdmin(orgId, actorId)) {
+            throw new ForbiddenException("Only organization ADMINs can delete the organization");
+        }
+        orgRepository.delete(orgId);
+    }
 }

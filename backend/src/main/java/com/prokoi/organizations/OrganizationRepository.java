@@ -72,4 +72,8 @@ public class OrganizationRepository {
             orgId, userId, role
         );
     }
+
+    public void delete(UUID orgId) {
+        jdbc.update("DELETE FROM organizations WHERE id = ?", orgId);
+    }
 }

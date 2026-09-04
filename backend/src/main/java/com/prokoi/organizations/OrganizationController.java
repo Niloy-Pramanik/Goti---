@@ -63,4 +63,34 @@ public class OrganizationController {
         UUID userId = (UUID) auth.getPrincipal();
         return ResponseEntity.ok(orgService.listMembers(orgId, userId));
     }
+
+    @PutMapping("/{orgId}/members/{userId}")
+    public ResponseEntity<Void> updateMemberRole(
+            @PathVariable UUID orgId,
+            @PathVariable UUID userId,
+            @Valid @RequestBody UpdateMemberRoleRequest request,
+            Authentication auth) {
+        UUID actorId = (UUID) auth.getPrincipal();
+        orgService.updateMemberRole(orgId, userId, request.getRole(), actorId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{orgId}/members/{userId}")
+    public ResponseEntity<Void> removeMember(
+            @PathVariable UUID orgId,
+            @PathVariable UUID userId,
+            Authentication auth) {
+        UUID actorId = (UUID) auth.getPrincipal();
+        orgService.removeMember(orgId, userId, actorId);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/{orgId}")
+    public ResponseEntity<Void> deleteOrganization(
+            @PathVariable UUID orgId,
+            Authentication auth) {
+        UUID actorId = (UUID) auth.getPrincipal();
+        orgService.deleteOrganization(orgId, actorId);
+        return ResponseEntity.noContent().build();
+    }
 }
