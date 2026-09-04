@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { LayoutGrid, Loader2 } from 'lucide-react';
 
 export default function LoginForm() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite');
   const inviteEmail = searchParams.get('email');
@@ -49,7 +48,7 @@ export default function LoginForm() {
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
       {/* Background decoration */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/10 blur-3xl rounded-full pointer-events-none"></div>
-      
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link to="/" className="flex items-center justify-center gap-2 text-slate-900 font-bold text-2xl tracking-tight mb-8">
           <LayoutGrid className="w-8 h-8 text-brand-600" />

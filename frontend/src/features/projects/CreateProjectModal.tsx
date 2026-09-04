@@ -15,7 +15,7 @@ export default function CreateProjectModal({ isOpen, onClose, teamId }: CreatePr
   const [repoLink, setRepoLink] = useState('');
   const [meetingLink, setMeetingLink] = useState('');
   const [storageLink, setStorageLink] = useState('');
-  
+
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
@@ -99,7 +99,7 @@ export default function CreateProjectModal({ isOpen, onClose, teamId }: CreatePr
 
           <div className="space-y-3 pt-2">
             <h3 className="text-sm font-bold text-slate-900">Integrations (Optional)</h3>
-            
+
             <div>
               <label htmlFor="repoLink" className="block text-xs font-medium text-slate-500 mb-1">
                 Repository Link (e.g., GitHub, GitLab)
@@ -113,7 +113,7 @@ export default function CreateProjectModal({ isOpen, onClose, teamId }: CreatePr
                 placeholder="https://github.com/..."
               />
             </div>
-            
+
             <div>
               <label htmlFor="meetingLink" className="block text-xs font-medium text-slate-500 mb-1">
                 Meeting Link (e.g., Zoom, Google Meet)

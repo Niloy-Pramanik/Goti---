@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation } from '@tanstack/react-query';
 import { Loader2, UserPlus, Users, X } from 'lucide-react';
 import apiClient from '../../api/client';
 import AddTeamMemberModal from './AddTeamMemberModal';
@@ -23,7 +23,6 @@ interface TeamMembersModalProps {
 
 export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, myRole, orgRole }: TeamMembersModalProps) {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const removeMemberMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -62,7 +61,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
-      <div 
+      <div
         className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[80vh]"
         onClick={(e) => e.stopPropagation()}
       >
@@ -73,7 +72,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
               {teamName} Members
             </h2>
           </div>
-          <button 
+          <button
             onClick={onClose}
             className="text-slate-400 hover:text-slate-600 transition-colors p-1 rounded-lg hover:bg-slate-50"
           >
@@ -104,8 +103,8 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {members?.map((member) => (
-                <div key={member.userId} className="bg-white p-4 rounded-xl border border-slate-200/60 shadow-sm flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-3 min-w-0">
+                <div key={member.userId} className="bg-white rounded-xl border border-slate-200/60 shadow-sm flex flex-col h-full">
+                  <div className="p-4 flex items-start gap-3 flex-1">
                     <div className="w-10 h-10 shrink-0 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-base border border-slate-200">
                       {member.name.charAt(0).toUpperCase()}
                     </div>
@@ -120,19 +119,16 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                           {member.role}
                         </span>
                       </div>
-                      <div className="flex items-center gap-2 text-xs font-medium text-slate-500 flex-wrap">
-                        <a href={`mailto:${member.email}`} className="hover:text-slate-700 hover:underline">{member.email}</a>
+                      <div className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+                        <a href={`mailto:${member.email}`} className="hover:text-slate-700 hover:underline truncate">{member.email}</a>
                         {member.joinedAt && (
-                          <>
-                            <span className="text-slate-300">&middot;</span>
-                            <span>Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                          </>
+                          <span className="text-slate-400">Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                         )}
                       </div>
                     </div>
                   </div>
                   {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
-                    <div className="flex items-center gap-1.5 ml-auto shrink-0">
+                    <div className="px-4 py-3 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end gap-1.5 rounded-b-xl mt-auto">
                       <button 
                         onClick={() => {
                           const newRole = member.role === 'LEAD' ? 'MEMBER' : 'LEAD';
@@ -156,9 +152,9 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                   )}
                 </div>
               ))}
-              
+
               {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
-                <button 
+                <button
                   onClick={() => setIsAddMemberModalOpen(true)}
                   className="bg-slate-50/50 hover:bg-slate-50 border-2 border-dashed border-slate-200/60 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition-colors h-full min-h-[80px] p-4"
                 >
@@ -173,8 +169,8 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
         </div>
       </div>
 
-      <AddTeamMemberModal 
-        isOpen={isAddMemberModalOpen} 
+      <AddTeamMemberModal
+        isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
         teamId={teamId}
       />

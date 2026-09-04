@@ -1,11 +1,10 @@
 import { useState } from 'react';
-import { useNavigate, Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { LayoutGrid, Loader2 } from 'lucide-react';
 
 export default function RegisterForm() {
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const inviteToken = searchParams.get('invite');
   const inviteEmail = searchParams.get('email');
@@ -25,7 +24,7 @@ export default function RegisterForm() {
     try {
       const response = await apiClient.post('/api/users/register', { name, email, password });
       const { token, user } = response.data;
-      
+
       // Store the token
       setAuth(token, user);
 
@@ -51,7 +50,7 @@ export default function RegisterForm() {
   return (
     <div className="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8 bg-slate-50 relative overflow-hidden">
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-brand-500/10 blur-3xl rounded-full pointer-events-none"></div>
-      
+
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <Link to="/" className="flex items-center justify-center gap-2 text-slate-900 font-bold text-2xl tracking-tight mb-8">
           <LayoutGrid className="w-8 h-8 text-brand-600" />
@@ -60,7 +59,7 @@ export default function RegisterForm() {
         <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-slate-900">
           Create an account
         </h2>
-                <p className="mt-2 text-center text-sm text-slate-500">
+        <p className="mt-2 text-center text-sm text-slate-500">
           Join Goti and manage your organizations
         </p>
       </div>

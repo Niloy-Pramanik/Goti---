@@ -48,7 +48,7 @@ function TeamItem({ team, orgRole }: { team: Team, orgRole: string }) {
   return (
     <div className="mb-6 group min-w-0">
       <div className={`bg-white/80 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[1.5rem] overflow-hidden transition-all duration-500 ${!isExpanded && 'hover:-translate-y-1 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)]'}`}>
-        <div 
+        <div
           className="flex items-center justify-between p-6 cursor-pointer hover:bg-white/90 transition-colors gap-4"
           onClick={() => setIsExpanded(!isExpanded)}
         >
@@ -66,7 +66,7 @@ function TeamItem({ team, orgRole }: { team: Team, orgRole: string }) {
             </div>
           </div>
           <div className="flex items-center flex-wrap gap-3">
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 setIsTeamMembersModalOpen(true);
@@ -77,7 +77,7 @@ function TeamItem({ team, orgRole }: { team: Team, orgRole: string }) {
               Members
             </button>
             {(team.userRole === 'LEAD' || orgRole === 'ADMIN') && (
-              <button 
+              <button
                 onClick={(e) => {
                   e.stopPropagation();
                   setIsCreateProjectModalOpen(true);
@@ -122,7 +122,7 @@ function TeamItem({ team, orgRole }: { team: Team, orgRole: string }) {
                     <p className="text-sm text-slate-500 line-clamp-2 mb-6 font-medium">
                       {project.description || 'No description provided.'}
                     </p>
-                    
+
                     <div className="flex flex-wrap items-center gap-2 mt-auto">
                       {project.repoLink && (
                         <a href={project.repoLink} target="_blank" rel="noreferrer" className="flex items-center gap-1.5 text-xs font-bold text-slate-600 bg-slate-100/80 hover:bg-slate-200 px-3 py-1.5 rounded-lg transition-colors border border-slate-200/50">
@@ -148,8 +148,8 @@ function TeamItem({ team, orgRole }: { team: Team, orgRole: string }) {
         )}
       </div>
 
-      <CreateProjectModal 
-        isOpen={isCreateProjectModalOpen} 
+      <CreateProjectModal
+        isOpen={isCreateProjectModalOpen}
         onClose={() => setIsCreateProjectModalOpen(false)}
         teamId={team.id}
       />
@@ -246,7 +246,7 @@ export default function OrganizationDetail() {
             </span>
           </div>
         </div>
-        
+
         {org.userRole === 'ADMIN' && (
           <button
             onClick={handleDelete}
@@ -261,13 +261,13 @@ export default function OrganizationDetail() {
 
       {/* Teams Section */}
       <div className="min-w-0">
-        
+
         {/* Teams List */}
         <div>
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Teams</h2>
             {org.userRole === 'ADMIN' && (
-              <button 
+              <button
                 onClick={() => setIsTeamModalOpen(true)}
                 className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
               >
@@ -289,7 +289,7 @@ export default function OrganizationDetail() {
               <h3 className="font-extrabold text-slate-900 mb-2 text-xl">No teams found</h3>
               <p className="text-slate-500 text-base mb-6 font-medium">Create a team to organize projects and members.</p>
               {org.userRole === 'ADMIN' && (
-                <button 
+                <button
                   onClick={() => setIsTeamModalOpen(true)}
                   className="bg-slate-900 text-white font-bold text-sm px-6 py-3 rounded-full hover:bg-slate-800 hover:shadow-lg transition-all"
                 >
@@ -311,8 +311,8 @@ export default function OrganizationDetail() {
         <OrgMembersList orgId={orgId as string} myRole={org.userRole} />
       </div>
 
-      <CreateTeamModal 
-        isOpen={isTeamModalOpen} 
+      <CreateTeamModal
+        isOpen={isTeamModalOpen}
         onClose={() => setIsTeamModalOpen(false)}
         orgId={orgId as string}
       />

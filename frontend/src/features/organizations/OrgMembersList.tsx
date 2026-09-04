@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, UserPlus, Users, AlertTriangle } from 'lucide-react';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { Loader2, UserPlus, Users } from 'lucide-react';
 import apiClient from '../../api/client';
 import AddOrgMemberModal from './AddOrgMemberModal';
 
@@ -19,7 +19,6 @@ interface OrgMembersListProps {
 
 export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false);
-  const queryClient = useQueryClient();
 
   const removeMemberMutation = useMutation({
     mutationFn: async (userId: string) => {
@@ -94,8 +93,8 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {members?.map((member) => (
-              <div key={member.userId} className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex items-center justify-between gap-4 hover:shadow-md transition-shadow">
-                <div className="flex items-center gap-3 min-w-0">
+              <div key={member.userId} className="bg-white rounded-2xl border border-slate-200/60 shadow-sm flex flex-col hover:shadow-md transition-shadow h-full">
+                <div className="p-6 flex items-start gap-4 flex-1">
                   <div className="w-12 h-12 shrink-0 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-lg border border-slate-200">
                     {member.name.charAt(0).toUpperCase()}
                   </div>
@@ -110,19 +109,16 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                         {member.role}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 text-xs font-medium text-slate-500 flex-wrap">
-                      <a href={`mailto:${member.email}`} className="hover:text-slate-700 hover:underline">{member.email}</a>
+                    <div className="flex flex-col gap-1 text-xs font-medium text-slate-500">
+                      <a href={`mailto:${member.email}`} className="hover:text-slate-700 hover:underline truncate">{member.email}</a>
                       {member.joinedAt && (
-                        <>
-                          <span className="text-slate-300">&middot;</span>
-                          <span>Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                        </>
+                        <span className="text-slate-400">Joined {new Date(member.joinedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}</span>
                       )}
                     </div>
                   </div>
                 </div>
                 {myRole === 'ADMIN' && (
-                  <div className="flex items-center gap-2 ml-auto shrink-0">
+                  <div className="px-6 py-4 bg-slate-50/50 border-t border-slate-100 flex items-center justify-end gap-2 rounded-b-2xl mt-auto">
                     <button 
                       onClick={() => {
                         const newRole = member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN';
@@ -146,9 +142,9 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                 )}
               </div>
             ))}
-            
+
             {myRole === 'ADMIN' && (
-              <button 
+              <button
                 onClick={() => setIsAddMemberModalOpen(true)}
                 className="bg-slate-50/50 hover:bg-slate-50 border-2 border-dashed border-slate-200/60 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition-colors h-full min-h-[100px] p-6"
               >
@@ -162,8 +158,8 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
         )}
       </div>
 
-      <AddOrgMemberModal 
-        isOpen={isAddMemberModalOpen} 
+      <AddOrgMemberModal
+        isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
         orgId={orgId}
       />
