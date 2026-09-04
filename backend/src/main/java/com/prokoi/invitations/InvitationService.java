@@ -113,29 +113,18 @@ public class InvitationService {
         Invitation invitation = invitationRepository.findByToken(token)
                 .orElseThrow(() -> new NotFoundException("Invalid invitation link"));
 
-        if (invitation.isAccepted()) {
-            throw new ConflictException("This invitation has already been accepted");
-        }
-
         if (invitation.getExpiresAt().isBefore(LocalDateTime.now())) {
             throw new ForbiddenException("This invitation has expired");
         }
 
-        User user = userService.findById(userId);
-
-        if (!user.getEmail().equalsIgnoreCase(invitation.getEmail())) {
-            throw new ForbiddenException("This invitation was sent to a different email address");
-        }
-
-        // Add user to organization
+        // No email check — anyone with the link can accept
+        // Add user to organization (idempotent — ON CONFLICT DO NOTHING)
         addMemberToOrg(invitation.getOrgId(), userId, invitation.getRole());
 
         // If it's a team invitation, also add to team
         if (invitation.getTeamId() != null) {
             addMemberToTeam(invitation.getTeamId(), userId, "MEMBER");
         }
-
-        invitationRepository.markAccepted(token);
     }
 
     private void addMemberToOrg(UUID orgId, UUID userId, String role) {

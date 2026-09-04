@@ -115,6 +115,9 @@ export default function InviteAccept() {
                   <>Join <strong>{invite.organizationName}</strong> on Goti</>
                 )}
               </p>
+              <p className="text-xs text-slate-400 mt-2">
+                Anyone with this link can register or sign in to join.
+              </p>
             </div>
 
             <div className="bg-slate-50 rounded-xl p-4 mb-6">
@@ -161,10 +164,10 @@ export default function InviteAccept() {
                   <span className="font-medium">Already accepted</span>
                 </div>
                 <Link
-                  to="/login"
+                  to="/dashboard"
                   className="block w-full bg-slate-900 text-white text-center py-3 rounded-xl font-medium hover:bg-slate-800 transition-all"
                 >
-                  Sign In
+                  Go to Dashboard
                 </Link>
               </div>
             ) : authToken ? (

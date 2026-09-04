@@ -44,7 +44,7 @@ public class TeamMemberRepository {
 
     public void save(UUID teamId, UUID userId, String role) {
         jdbc.update(
-                "INSERT INTO team_members (team_id, user_id, role) VALUES (?, ?, ?)",
+                "INSERT INTO team_members (team_id, user_id, role) VALUES (?, ?, ?) ON CONFLICT (team_id, user_id) DO NOTHING",
                 teamId, userId, role
         );
     }

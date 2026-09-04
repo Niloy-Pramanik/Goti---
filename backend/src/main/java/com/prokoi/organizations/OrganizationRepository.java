@@ -68,7 +68,7 @@ public class OrganizationRepository {
 
     public void addMember(UUID orgId, UUID userId, String role) {
         jdbc.update(
-            "INSERT INTO organization_members (org_id, user_id, role) VALUES (?, ?, ?)",
+            "INSERT INTO organization_members (org_id, user_id, role) VALUES (?, ?, ?) ON CONFLICT (org_id, user_id) DO NOTHING",
             orgId, userId, role
         );
     }
