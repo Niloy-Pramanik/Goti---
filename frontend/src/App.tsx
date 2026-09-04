@@ -1,9 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Landing from './pages/Landing';
+import InviteAccept from './pages/InviteAccept';
 import LoginForm from './features/auth/LoginForm';
 import RegisterForm from './features/auth/RegisterForm';
 import AppLayout from './components/layout/AppLayout';
 import Dashboard from './features/organizations/Dashboard';
+import OrganizationDetail from './features/organizations/OrganizationDetail';
 import { useAuthStore } from './store/authStore';
 
 // Helper to prevent logged-in users from seeing login/register
@@ -18,6 +20,9 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Landing />} />
+        
+        {/* Invite Route - public */}
+        <Route path="/invite/:token" element={<InviteAccept />} />
         
         {/* Auth Routes */}
         <Route path="/login" element={
@@ -34,7 +39,7 @@ function App() {
         {/* Protected App Routes */}
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/orgs/:orgId" element={<div className="p-8">Organization Detail Coming Soon</div>} />
+          <Route path="/orgs/:orgId" element={<OrganizationDetail />} />
         </Route>
       </Routes>
     </BrowserRouter>

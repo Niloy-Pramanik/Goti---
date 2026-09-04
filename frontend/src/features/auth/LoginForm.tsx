@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import apiClient from '../../api/client';
 import { useAuthStore } from '../../store/authStore';
 import { LayoutGrid, Loader2 } from 'lucide-react';
@@ -10,6 +10,8 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get('invite');
   const setAuth = useAuthStore((state) => state.setAuth);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -21,7 +23,20 @@ export default function LoginForm() {
       const response = await apiClient.post('/api/users/login', { email, password });
       const { token, user } = response.data;
       setAuth(token, user);
-      navigate('/dashboard');
+
+      // If there's an invite token, accept it
+      if (inviteToken) {
+        try {
+          await apiClient.post(`/api/invites/${inviteToken}/accept`);
+          navigate('/dashboard');
+        } catch (inviteErr: any) {
+          // Login succeeded but invite acceptance failed
+          // Still navigate to dashboard
+          navigate('/dashboard');
+        }
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to login. Please check your credentials.');
     } finally {

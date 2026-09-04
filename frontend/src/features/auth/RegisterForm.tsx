@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import apiClient from '../../api/client';
+import { useAuthStore } from '../../store/authStore';
 import { LayoutGrid, Loader2 } from 'lucide-react';
 
 export default function RegisterForm() {
@@ -10,6 +11,9 @@ export default function RegisterForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const inviteToken = searchParams.get('invite');
+  const { setAuth } = useAuthStore();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,8 +21,25 @@ export default function RegisterForm() {
     setLoading(true);
 
     try {
-      await apiClient.post('/api/users/register', { name, email, password });
-      navigate('/login');
+      const response = await apiClient.post('/api/users/register', { name, email, password });
+      const { token, user } = response.data;
+      
+      // Store the token
+      setAuth(token, user);
+
+      // If there's an invite token, accept it
+      if (inviteToken) {
+        try {
+          await apiClient.post(`/api/invites/${inviteToken}/accept`);
+          navigate('/dashboard');
+        } catch (inviteErr: any) {
+          // Registration succeeded but invite acceptance failed
+          // Still navigate to dashboard, user can try accepting later
+          navigate('/dashboard');
+        }
+      } else {
+        navigate('/dashboard');
+      }
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to register. Please try again.');
     } finally {
