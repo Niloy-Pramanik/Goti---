@@ -6,6 +6,7 @@ import java.util.UUID;
 public class Invitation {
     private UUID id;
     private UUID orgId;
+    private UUID teamId;
     private String email;
     private String role;
     private String token;
@@ -19,6 +20,9 @@ public class Invitation {
 
     public UUID getOrgId() { return orgId; }
     public void setOrgId(UUID orgId) { this.orgId = orgId; }
+
+    public UUID getTeamId() { return teamId; }
+    public void setTeamId(UUID teamId) { this.teamId = teamId; }
 
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }

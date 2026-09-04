@@ -22,6 +22,7 @@ public class InvitationRepository {
         Invitation i = new Invitation();
         i.setId(rs.getObject("id", UUID.class));
         i.setOrgId(rs.getObject("org_id", UUID.class));
+        i.setTeamId(rs.getObject("team_id", UUID.class));
         i.setEmail(rs.getString("email"));
         i.setRole(rs.getString("role"));
         i.setToken(rs.getString("token"));
@@ -34,11 +35,12 @@ public class InvitationRepository {
 
     public Invitation save(Invitation invitation) {
         jdbc.update(
-            "INSERT INTO invitations (id, org_id, email, role, token, invited_by, accepted, created_at, expires_at) " +
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            invitation.getId(), invitation.getOrgId(), invitation.getEmail(),
-            invitation.getRole(), invitation.getToken(), invitation.getInvitedBy(),
-            invitation.isAccepted(), invitation.getCreatedAt(), invitation.getExpiresAt()
+            "INSERT INTO invitations (id, org_id, team_id, email, role, token, invited_by, accepted, created_at, expires_at) " +
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            invitation.getId(), invitation.getOrgId(), invitation.getTeamId(),
+            invitation.getEmail(), invitation.getRole(), invitation.getToken(),
+            invitation.getInvitedBy(), invitation.isAccepted(),
+            invitation.getCreatedAt(), invitation.getExpiresAt()
         );
         return invitation;
     }
@@ -65,6 +67,14 @@ public class InvitationRepository {
         Integer count = jdbc.queryForObject(
             "SELECT COUNT(*) FROM invitations WHERE org_id = ? AND email = ? AND accepted = FALSE AND expires_at > ?",
             Integer.class, orgId, email, LocalDateTime.now()
+        );
+        return count != null && count > 0;
+    }
+
+    public boolean hasPendingTeamInvitation(UUID teamId, String email) {
+        Integer count = jdbc.queryForObject(
+            "SELECT COUNT(*) FROM invitations WHERE team_id = ? AND email = ? AND accepted = FALSE AND expires_at > ?",
+            Integer.class, teamId, email, LocalDateTime.now()
         );
         return count != null && count > 0;
     }

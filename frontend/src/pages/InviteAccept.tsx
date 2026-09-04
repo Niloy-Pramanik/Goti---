@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useQuery, useMutation } from '@tanstack/react-query';
-import { Loader2, Building2, Users, CheckCircle, AlertCircle, LayoutGrid } from 'lucide-react';
+import { Loader2, Building2, Users, CheckCircle, AlertCircle, LayoutGrid, Shield } from 'lucide-react';
 import apiClient from '../api/client';
 import { useAuthStore } from '../store/authStore';
 
@@ -12,6 +12,8 @@ interface InvitationDetails {
   role: string;
   expiresAt: string;
   accepted: boolean;
+  teamInvite: boolean;
+  teamName: string;
 }
 
 export default function InviteAccept() {
@@ -92,31 +94,55 @@ export default function InviteAccept() {
 
           <div className="bg-white/80 backdrop-blur-xl rounded-2xl shadow-xl border border-white/50 p-8">
             <div className="text-center mb-6">
-              <div className="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                <Building2 className="w-8 h-8 text-brand-600" />
+              <div className={`w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-4 ${
+                invite.teamInvite 
+                  ? 'bg-purple-100' 
+                  : 'bg-brand-100'
+              }`}>
+                {invite.teamInvite ? (
+                  <Users className="w-8 h-8 text-purple-600" />
+                ) : (
+                  <Building2 className="w-8 h-8 text-brand-600" />
+                )}
               </div>
               <h1 className="text-2xl font-bold text-slate-900 mb-2">
                 You're Invited!
               </h1>
               <p className="text-slate-500 text-sm">
-                Join <strong>{invite.organizationName}</strong> on Goti
+                {invite.teamInvite ? (
+                  <>Join <strong>{invite.teamName}</strong> team at <strong>{invite.organizationName}</strong></>
+                ) : (
+                  <>Join <strong>{invite.organizationName}</strong> on Goti</>
+                )}
               </p>
             </div>
 
             <div className="bg-slate-50 rounded-xl p-4 mb-6">
               <div className="flex items-center gap-3 mb-3">
                 <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center">
-                  <Users className="w-5 h-5 text-slate-500" />
+                  {invite.teamInvite ? (
+                    <Users className="w-5 h-5 text-slate-500" />
+                  ) : (
+                    <Building2 className="w-5 h-5 text-slate-500" />
+                  )}
                 </div>
                 <div>
-                  <p className="font-semibold text-slate-900 text-sm">{invite.organizationName}</p>
-                  {invite.organizationDescription && (
+                  <p className="font-semibold text-slate-900 text-sm">
+                    {invite.teamInvite ? invite.teamName : invite.organizationName}
+                  </p>
+                  {invite.teamInvite && (
+                    <p className="text-xs text-slate-500">{invite.organizationName}</p>
+                  )}
+                  {!invite.teamInvite && invite.organizationDescription && (
                     <p className="text-xs text-slate-500">{invite.organizationDescription}</p>
                   )}
                 </div>
               </div>
               <div className="flex items-center gap-2 text-xs text-slate-500">
-                <span>Role: <strong className="text-slate-700">{invite.role}</strong></span>
+                <span className="flex items-center gap-1">
+                  <Shield className="w-3 h-3" />
+                  Role: <strong className="text-slate-700">{invite.role}</strong>
+                </span>
                 <span>•</span>
                 <span>Expires: {new Date(invite.expiresAt).toLocaleDateString()}</span>
               </div>
