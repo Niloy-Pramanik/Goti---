@@ -1,34 +1,31 @@
 import axios from 'axios';
+import { useAuthStore } from '../store/authStore';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080';
-
-const client = axios.create({
-  baseURL: `${API_BASE_URL}/api`,
+const apiClient = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// JWT interceptor: attach token to every request
-client.interceptors.request.use((config) => {
-  const token = localStorage.getItem('prokoi_token');
+apiClient.interceptors.request.use((config) => {
+  const token = useAuthStore.getState().token;
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;
 });
 
-// Response interceptor: handle 401 globally
-client.interceptors.response.use(
+apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('prokoi_token');
-      localStorage.removeItem('prokoi_user');
+    // If we get a 401 Unauthorized globally (and it's not the login endpoint), log out the user.
+    if (error.response?.status === 401 && !error.config.url?.includes('/users/login')) {
+      useAuthStore.getState().logout();
       window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
 
-export default client;
+export default apiClient;
