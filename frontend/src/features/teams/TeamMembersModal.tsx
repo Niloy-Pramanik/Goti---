@@ -108,10 +108,10 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                   <div className="w-10 h-10 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-base border border-slate-200">
                     {member.name.charAt(0).toUpperCase()}
                   </div>
-                  <div className="overflow-hidden flex-1">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
                       <h4 className="font-bold text-slate-900 truncate text-sm">{member.name}</h4>
-                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border whitespace-nowrap ${
+                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border whitespace-nowrap shrink-0 ${
                         member.role === 'LEAD' 
                           ? 'bg-purple-50 text-purple-700 border-purple-200/60' 
                           : 'bg-slate-50 text-slate-600 border-slate-200/60'
@@ -119,7 +119,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                         {member.role}
                       </span>
                     </div>
-                    <a href={`mailto:${member.email}`} className="text-xs font-medium text-slate-500 truncate hover:text-slate-700 hover:underline">
+                    <a href={`mailto:${member.email}`} title={member.email} className="block text-xs font-medium text-slate-500 truncate hover:text-slate-700 hover:underline">
                       {member.email}
                     </a>
                     {member.joinedAt && (
@@ -129,7 +129,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                     )}
                   </div>
                   {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
-                    <div className="flex items-center gap-1.5 ml-auto">
+                    <div className="flex items-center gap-1.5 ml-auto shrink-0">
                       <button 
                         onClick={() => {
                           const newRole = member.role === 'LEAD' ? 'MEMBER' : 'LEAD';

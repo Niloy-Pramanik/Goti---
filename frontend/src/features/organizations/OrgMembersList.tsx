@@ -98,10 +98,10 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                 <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-lg border border-slate-200">
                   {member.name.charAt(0).toUpperCase()}
                 </div>
-                <div className="overflow-hidden flex-1">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-slate-900 truncate">{member.name}</h4>
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider border whitespace-nowrap ${
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider border whitespace-nowrap shrink-0 ${
                       member.role === 'ADMIN' 
                         ? 'bg-amber-50 text-amber-700 border-amber-200/60' 
                         : 'bg-slate-50 text-slate-600 border-slate-200/60'
@@ -109,7 +109,7 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                       {member.role}
                     </span>
                   </div>
-                  <a href={`mailto:${member.email}`} className="text-xs font-medium text-slate-500 truncate hover:text-slate-700 hover:underline">
+                  <a href={`mailto:${member.email}`} title={member.email} className="block text-xs font-medium text-slate-500 truncate hover:text-slate-700 hover:underline">
                     {member.email}
                   </a>
                   {member.joinedAt && (
@@ -119,7 +119,7 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                   )}
                 </div>
                 {myRole === 'ADMIN' && (
-                  <div className="flex items-center gap-2 ml-auto">
+                  <div className="flex items-center gap-2 ml-auto shrink-0">
                     <button 
                       onClick={() => {
                         const newRole = member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN';
