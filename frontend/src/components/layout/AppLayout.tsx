@@ -10,9 +10,9 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex overflow-hidden">
+    <div className="min-h-screen bg-slate-50 flex overflow-x-hidden">
       <Sidebar />
-      <main className="flex-1 overflow-y-auto relative">
+      <main className="flex-1 overflow-y-auto relative min-w-0">
         <div className="absolute top-0 right-0 w-96 h-96 bg-brand-500/5 blur-3xl rounded-full pointer-events-none"></div>
         <div className="p-8 relative z-10 max-w-7xl mx-auto">
           <Outlet />
