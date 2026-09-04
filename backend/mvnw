@@ -1,0 +1,24 @@
+#!/bin/sh
+# Maven Wrapper shell script
+# Downloads Maven and runs it
+set -e
+
+MAVEN_WRAPPER_JAR="$(dirname "$0")/.mvn/wrapper/maven-wrapper.jar"
+MAVEN_WRAPPER_PROPERTIES="$(dirname "$0")/.mvn/wrapper/maven-wrapper.properties"
+
+if [ -f "$MAVEN_WRAPPER_PROPERTIES" ]; then
+    distributionUrl=$(grep -oP 'distributionUrl=\K.*' "$MAVEN_WRAPPER_PROPERTIES" 2>/dev/null || grep 'distributionUrl=' "$MAVEN_WRAPPER_PROPERTIES" | cut -d'=' -f2-)
+fi
+
+MAVEN_HOME="${HOME}/.m2/wrapper/dists/apache-maven-3.9.9"
+
+if [ ! -d "$MAVEN_HOME" ]; then
+    echo "Downloading Maven..."
+    mkdir -p "$MAVEN_HOME"
+    curl -sL "$distributionUrl" -o "/tmp/maven.zip"
+    unzip -qo "/tmp/maven.zip" -d "$MAVEN_HOME"
+    rm -f "/tmp/maven.zip"
+fi
+
+MAVEN_BIN=$(find "$MAVEN_HOME" -name "mvn" -path "*/bin/mvn" | head -1)
+exec "$MAVEN_BIN" "$@"

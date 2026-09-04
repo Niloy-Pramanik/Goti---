@@ -1,0 +1,48 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: prokoi-db
+    environment:
+      POSTGRES_DB: prokoi
+      POSTGRES_USER: ${DB_USERNAME:-prokoi}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-prokoi_dev_password}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prokoi"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: prokoi-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/prokoi
+      DB_USERNAME: ${DB_USERNAME:-prokoi}
+      DB_PASSWORD: ${DB_PASSWORD:-prokoi_dev_password}
+      JWT_SECRET: ${JWT_SECRET:-prokoi-dev-secret-key-change-in-prod-must-be-at-least-32-chars!!}
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: prokoi-frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
+
+volumes:
+  pgdata:
