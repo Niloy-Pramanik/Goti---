@@ -83,15 +83,9 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
 
         <div className="p-6 flex justify-between items-center bg-slate-50 border-b border-slate-100">
           <p className="text-sm font-medium text-slate-600">Manage who has access to this team.</p>
-          {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
-            <button 
-              onClick={() => setIsAddMemberModalOpen(true)}
-              className="flex items-center gap-2 bg-slate-900 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm hover:-translate-y-0.5 active:scale-95"
-            >
-              <UserPlus className="w-4 h-4" />
-              Add Member
-            </button>
-          )}
+          <span className="bg-slate-200/60 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-300/50">
+            {members?.length || 0} Members
+          </span>
         </div>
 
         <div className="p-6 overflow-y-auto flex-1">
@@ -117,7 +111,7 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                   <div className="overflow-hidden flex-1">
                     <div className="flex items-center gap-2 mb-0.5">
                       <h4 className="font-bold text-slate-900 truncate text-sm">{member.name}</h4>
-                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border ${
+                      <span className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider border whitespace-nowrap ${
                         member.role === 'LEAD' 
                           ? 'bg-purple-50 text-purple-700 border-purple-200/60' 
                           : 'bg-slate-50 text-slate-600 border-slate-200/60'
@@ -152,6 +146,18 @@ export default function TeamMembersModal({ isOpen, onClose, teamId, teamName, my
                   )}
                 </div>
               ))}
+              
+              {(myRole === 'LEAD' || orgRole === 'ADMIN') && (
+                <button 
+                  onClick={() => setIsAddMemberModalOpen(true)}
+                  className="bg-slate-50/50 hover:bg-slate-50 border-2 border-dashed border-slate-200/60 rounded-xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition-colors h-full min-h-[80px] p-4"
+                >
+                  <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-sm">
+                    <UserPlus className="w-4 h-4" />
+                  </div>
+                  <span className="font-bold text-xs">Add Member</span>
+                </button>
+              )}
             </div>
           )}
         </div>

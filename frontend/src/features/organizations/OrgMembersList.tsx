@@ -69,8 +69,6 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
     );
   }
 
-  const displayMembers = members?.filter(member => member.role !== 'ADMIN') || [];
-
   return (
     <div className="bg-white/60 backdrop-blur-xl rounded-[2rem] border border-white shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden relative z-0">
       {/* Header */}
@@ -80,19 +78,22 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
             <Users className="w-6 h-6 text-slate-400" />
             Members
           </h2>
-          <p className="text-slate-500 font-medium mt-1">People with access to this organization.</p>
+          <p className="text-slate-500 font-medium mt-1">Manage organization access and roles.</p>
         </div>
+        <span className="bg-slate-100 text-slate-700 text-xs font-bold px-3 py-1.5 rounded-full border border-slate-200">
+          {members?.length || 0} Members
+        </span>
       </div>
 
       {/* List */}
       <div className="p-8">
-        {displayMembers.length === 0 ? (
+        {members?.length === 0 && myRole !== 'ADMIN' ? (
           <div className="text-center py-12">
-            <p className="text-slate-500">No invited members found.</p>
+            <p className="text-slate-500">No members found.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {displayMembers.map((member) => (
+            {members?.map((member) => (
               <div key={member.userId} className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm flex items-center gap-4 hover:shadow-md transition-shadow">
                 <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-full flex items-center justify-center font-bold text-lg border border-slate-200">
                   {member.name.charAt(0).toUpperCase()}
@@ -100,7 +101,7 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                 <div className="overflow-hidden flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <h4 className="font-bold text-slate-900 truncate">{member.name}</h4>
-                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider border ${
+                    <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider border whitespace-nowrap ${
                       member.role === 'ADMIN' 
                         ? 'bg-amber-50 text-amber-700 border-amber-200/60' 
                         : 'bg-slate-50 text-slate-600 border-slate-200/60'
@@ -109,12 +110,44 @@ export default function OrgMembersList({ orgId, myRole }: OrgMembersListProps) {
                     </span>
                   </div>
                   <p className="text-xs font-medium text-slate-500 truncate">{member.email}</p>
-                  <p className="text-[10px] font-medium text-slate-400 mt-1">
-                    Joined: {new Date(member.joinedAt).toLocaleDateString()}
-                  </p>
                 </div>
+                {myRole === 'ADMIN' && (
+                  <div className="flex items-center gap-2 ml-auto">
+                    <button 
+                      onClick={() => {
+                        const newRole = member.role === 'ADMIN' ? 'MEMBER' : 'ADMIN';
+                        updateRoleMutation.mutate({ userId: member.userId, newRole });
+                      }}
+                      className="text-xs font-bold px-3 py-1.5 text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200/60 disabled:opacity-50"
+                      disabled={updateRoleMutation.isPending}
+                    >
+                      {member.role === 'ADMIN' ? 'Make Member' : 'Make Admin'}
+                    </button>
+                    <button 
+                      onClick={() => {
+                        removeMemberMutation.mutate(member.userId);
+                      }}
+                      className="text-xs font-bold px-3 py-1.5 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors border border-red-100 disabled:opacity-50"
+                      disabled={removeMemberMutation.isPending}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
+            
+            {myRole === 'ADMIN' && (
+              <button 
+                onClick={() => setIsAddMemberModalOpen(true)}
+                className="bg-slate-50/50 hover:bg-slate-50 border-2 border-dashed border-slate-200/60 rounded-2xl flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-slate-900 transition-colors h-full min-h-[100px] p-6"
+              >
+                <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                  <UserPlus className="w-5 h-5" />
+                </div>
+                <span className="font-bold text-sm">Add Member</span>
+              </button>
+            )}
           </div>
         )}
       </div>
