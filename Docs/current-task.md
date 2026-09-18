@@ -6,16 +6,17 @@
 
 ---
 
-**Phase:** Phase 1 — Core Foundation
-**Status:** Not started / In progress / Blocked *(edit as work proceeds)*
-**Last updated:** *(set on first real task)*
+**Phase:** Phase 2 — Issue Tracking & Milestones
+**Status:** Done
+**Last updated:** Just now
 
 ## Active Goal
 
-Get Phase 1 fully working end-to-end: register → login → create org → create team →
-create project → set resource links, with role-based access enforced at every step.
+Get Phase 2 fully working end-to-end: view project → create milestones → create issues → 
+update issue status → log progress (blockers).
 
 ## Current Sub-task
+None. Phase 2 implementation complete.
 
 *(Fill in before starting work, e.g.:)*
 > Implementing `POST /api/organizations` — org creation + auto-assigning creator as `ADMIN`

@@ -20,11 +20,13 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final ProjectService projectService;
     private final TeamService teamService;
+    private final com.prokoi.inbox.NotificationService notificationService;
 
-    public IssueService(IssueRepository issueRepository, ProjectService projectService, TeamService teamService) {
+    public IssueService(IssueRepository issueRepository, ProjectService projectService, TeamService teamService, com.prokoi.inbox.NotificationService notificationService) {
         this.issueRepository = issueRepository;
         this.projectService = projectService;
         this.teamService = teamService;
+        this.notificationService = notificationService;
     }
 
     public IssueResponse createIssue(UUID projectId, CreateIssueRequest request, UUID actorId) {
@@ -51,6 +53,15 @@ public class IssueService {
         issue.setCreatedAt(OffsetDateTime.now());
 
         Issue saved = issueRepository.save(issue);
+        
+        if (saved.getAssigneeId() != null && !saved.getAssigneeId().equals(actorId)) {
+            notificationService.createNotification(
+                saved.getAssigneeId(),
+                "New Issue Assigned",
+                "You have been assigned to issue: " + saved.getTitle()
+            );
+        }
+        
         return mapToResponse(saved);
     }
 
@@ -87,7 +98,16 @@ public class IssueService {
             if (request.getAssigneeId() != null && !teamService.isMember(project.getTeamId(), request.getAssigneeId())) {
                 throw new ForbiddenException("Assignee must be a member of the team");
             }
+            UUID oldAssignee = issue.getAssigneeId();
             issue.setAssigneeId(request.getAssigneeId());
+            
+            if (request.getAssigneeId() != null && !request.getAssigneeId().equals(oldAssignee) && !request.getAssigneeId().equals(actorId)) {
+                notificationService.createNotification(
+                    request.getAssigneeId(),
+                    "Issue Re-assigned",
+                    "You have been assigned to issue: " + issue.getTitle()
+                );
+            }
         }
 
         issueRepository.update(issue);

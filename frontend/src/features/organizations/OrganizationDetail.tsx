@@ -112,12 +112,14 @@ function TeamItem({ team, orgRole }: { team: Team, orgRole: string }) {
                 {projects?.map((project) => (
                   <div key={project.id} className="bg-white p-6 rounded-2xl border border-slate-200/60 shadow-sm hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all flex flex-col hover:-translate-y-1">
                     <div className="flex items-start justify-between mb-3">
-                      <h4 className="font-extrabold text-slate-900 flex items-center gap-2 text-lg tracking-tight">
-                        <div className="w-8 h-8 bg-brand-50 text-brand-600 rounded-lg flex items-center justify-center">
-                          <LayoutGrid className="w-4 h-4" />
-                        </div>
-                        {project.name}
-                      </h4>
+                      <Link to={`/projects/${project.id}`} className="hover:opacity-80 transition-opacity">
+                        <h4 className="font-extrabold text-slate-900 flex items-center gap-2 text-lg tracking-tight">
+                          <div className="w-8 h-8 bg-brand-50 text-brand-600 rounded-lg flex items-center justify-center">
+                            <LayoutGrid className="w-4 h-4" />
+                          </div>
+                          {project.name}
+                        </h4>
+                      </Link>
                     </div>
                     <p className="text-sm text-slate-500 line-clamp-2 mb-6 font-medium">
                       {project.description || 'No description provided.'}

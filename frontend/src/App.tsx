@@ -6,12 +6,26 @@ import RegisterForm from './features/auth/RegisterForm';
 import AppLayout from './components/layout/AppLayout';
 import Dashboard from './features/organizations/Dashboard';
 import OrganizationDetail from './features/organizations/OrganizationDetail';
+import ProjectOverview from './features/projects/ProjectOverview';
+import ProjectBoard from './features/projects/ProjectBoard';
+import ProjectMilestones from './features/projects/ProjectMilestones';
+import MyTasks from './features/dashboard/MyTasks';
+import Inbox from './features/dashboard/Inbox';
+import TimeTracking from './features/dashboard/TimeTracking';
+import Reports from './features/dashboard/Reports';
+import PlaceholderView from './components/layout/PlaceholderView';
 import { useAuthStore } from './store/authStore';
 
 // Helper to prevent logged-in users from seeing login/register
 function AuthRoute({ children }: { children: React.ReactNode }) {
   const { token } = useAuthStore();
   if (token) return <Navigate to="/dashboard" replace />;
+  return <>{children}</>;
+}
+
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuthStore();
+  if (user?.globalRole !== 'ADMIN') return <Navigate to="/dashboard" replace />;
   return <>{children}</>;
 }
 
@@ -39,7 +53,15 @@ function App() {
         {/* Protected App Routes */}
         <Route element={<AppLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/inbox" element={<Inbox />} />
+          <Route path="/my-tasks" element={<MyTasks />} />
+          <Route path="/time-tracking" element={<TimeTracking />} />
+          <Route path="/reports" element={<Reports />} />
           <Route path="/orgs/:orgId" element={<OrganizationDetail />} />
+          <Route path="/projects/:projectId" element={<Navigate to="overview" replace />} />
+          <Route path="/projects/:projectId/overview" element={<ProjectOverview />} />
+          <Route path="/projects/:projectId/board" element={<ProjectBoard />} />
+          <Route path="/projects/:projectId/milestones" element={<ProjectMilestones />} />
         </Route>
       </Routes>
     </BrowserRouter>
