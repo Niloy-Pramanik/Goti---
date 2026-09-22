@@ -12,5 +12,6 @@ public record IssueResponse(
         String status,
         String title,
         String description,
-        OffsetDateTime createdAt
+        OffsetDateTime createdAt,
+        Integer totalTimeLogged
 ) {}

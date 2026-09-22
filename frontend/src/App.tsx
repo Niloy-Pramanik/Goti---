@@ -13,7 +13,7 @@ import MyTasks from './features/dashboard/MyTasks';
 import Inbox from './features/dashboard/Inbox';
 import TimeTracking from './features/dashboard/TimeTracking';
 import Reports from './features/dashboard/Reports';
-import PlaceholderView from './components/layout/PlaceholderView';
+
 import { useAuthStore } from './store/authStore';
 
 // Helper to prevent logged-in users from seeing login/register
@@ -23,11 +23,7 @@ function AuthRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function AdminRoute({ children }: { children: React.ReactNode }) {
-  const { user } = useAuthStore();
-  if (user?.globalRole !== 'ADMIN') return <Navigate to="/dashboard" replace />;
-  return <>{children}</>;
-}
+
 
 function App() {
   return (

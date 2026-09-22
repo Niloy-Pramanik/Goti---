@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { LayoutGrid, Loader2, ExternalLink } from 'lucide-react';
 import apiClient from '../../api/client';

@@ -173,7 +173,15 @@ function TaskCard({ issue, onStatusChange, onLogProgress, onLogTime }: { issue: 
         {issue.projectName} {issue.milestoneName && <span className="opacity-50">• {issue.milestoneName}</span>}
       </p>
       
-      <div className="flex items-center justify-end mt-4 pt-3 border-t border-slate-100/80 gap-1.5 relative z-10">
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100/80 relative z-10">
+        <div className="flex gap-1.5 items-center">
+          {issue.totalTimeLogged > 0 && (
+            <span className="text-[10px] font-bold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded">
+              {Math.floor(issue.totalTimeLogged / 60)}h {issue.totalTimeLogged % 60}m
+            </span>
+          )}
+        </div>
+        <div className="flex gap-1.5">
         <button 
           onClick={onLogTime}
           className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
@@ -188,6 +196,7 @@ function TaskCard({ issue, onStatusChange, onLogProgress, onLogTime }: { issue: 
         >
           <MessageSquare className="w-3.5 h-3.5" strokeWidth={2.5} />
         </button>
+        </div>
       </div>
     </div>
   );

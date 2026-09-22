@@ -150,7 +150,8 @@ public class IssueService {
                 issue.getStatus(),
                 issue.getTitle(),
                 issue.getDescription(),
-                issue.getCreatedAt()
+                issue.getCreatedAt(),
+                issue.getTotalTimeLogged()
         );
     }
 }

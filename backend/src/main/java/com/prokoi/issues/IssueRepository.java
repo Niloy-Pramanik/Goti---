@@ -32,6 +32,13 @@ public class IssueRepository {
         return issue;
     };
 
+    private static final RowMapper<Issue> ROW_MAPPER_WITH_TIME = (rs, rowNum) -> {
+        Issue issue = ROW_MAPPER.mapRow(rs, rowNum);
+        int totalTime = rs.getInt("total_time_logged");
+        issue.setTotalTimeLogged(rs.wasNull() ? 0 : totalTime);
+        return issue;
+    };
+
     public Issue save(Issue issue) {
         jdbc.update(
                 "INSERT INTO issues (id, project_id, milestone_id, assignee_id, type, status, title, description, created_at) " +
@@ -44,22 +51,25 @@ public class IssueRepository {
 
     public Optional<Issue> findById(UUID id) {
         return jdbc.query(
-                "SELECT * FROM issues WHERE id = ?",
-                ROW_MAPPER, id
+                "SELECT i.*, COALESCE((SELECT SUM(duration_minutes) FROM time_logs WHERE issue_id = i.id), 0) as total_time_logged " +
+                "FROM issues i WHERE i.id = ?",
+                ROW_MAPPER_WITH_TIME, id
         ).stream().findFirst();
     }
 
     public List<Issue> findByProjectId(UUID projectId) {
         return jdbc.query(
-                "SELECT * FROM issues WHERE project_id = ? ORDER BY created_at DESC",
-                ROW_MAPPER, projectId
+                "SELECT i.*, COALESCE((SELECT SUM(duration_minutes) FROM time_logs WHERE issue_id = i.id), 0) as total_time_logged " +
+                "FROM issues i WHERE i.project_id = ? ORDER BY i.created_at DESC",
+                ROW_MAPPER_WITH_TIME, projectId
         );
     }
     
     public List<Issue> findByAssigneeId(UUID assigneeId) {
         return jdbc.query(
-                "SELECT * FROM issues WHERE assignee_id = ? ORDER BY created_at DESC",
-                ROW_MAPPER, assigneeId
+                "SELECT i.*, COALESCE((SELECT SUM(duration_minutes) FROM time_logs WHERE issue_id = i.id), 0) as total_time_logged " +
+                "FROM issues i WHERE i.assignee_id = ? ORDER BY i.created_at DESC",
+                ROW_MAPPER_WITH_TIME, assigneeId
         );
     }
 

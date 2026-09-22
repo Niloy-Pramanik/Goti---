@@ -305,7 +305,7 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign,
       
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100/80 relative z-10">
         <div className="flex items-center">
-          {canAssign ? (
+          {canAssign && (
             <select 
               value={issue.assigneeId || ''}
               onChange={(e) => onAssigneeChange(e.target.value)}
@@ -317,32 +317,29 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign,
                 <option key={m.userId} value={m.userId}>{m.name}</option>
               ))}
             </select>
-          ) : (
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-400">
-                {issue.assigneeId ? teamMembers.find(m => m.userId === issue.assigneeId)?.name?.charAt(0).toUpperCase() || 'U' : '?'}
-              </div>
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider max-w-[80px] truncate">
-                {issue.assigneeId ? teamMembers.find(m => m.userId === issue.assigneeId)?.name || 'Assigned' : 'Unassigned'}
-              </span>
-            </div>
           )}
         </div>
         
-        <div className="flex gap-1.5">
-          <button 
-            onClick={onLogTime}
-            className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
-            title="Log Time"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </button>
+        <div className="flex gap-1.5 items-center">
+          {issue.totalTimeLogged > 0 && (
+            <span className="text-[10px] font-bold text-brand-600 bg-brand-50 px-1.5 py-0.5 rounded mr-1">
+              {Math.floor(issue.totalTimeLogged / 60)}h {issue.totalTimeLogged % 60}m
+            </span>
+          )}
           <button 
             onClick={onLogProgress}
             className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
             title="Log Progress/Blocker"
           >
             <MessageSquare className="w-3.5 h-3.5" strokeWidth={2.5} />
+          </button>
+
+          <button 
+            onClick={onLogTime}
+            className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
+            title="Log Time"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </button>
         </div>
       </div>
