@@ -4,6 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Loader2, Plus, MessageSquare, GripVertical } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import apiClient from '../../api/client';
+import { useAuthStore } from '../../store/authStore';
 import CreateIssueModal from '../issues/CreateIssueModal';
 import LogProgressModal from '../issues/LogProgressModal';
 import LogTimeModal from '../issues/LogTimeModal';
@@ -16,6 +17,7 @@ export default function ProjectBoard() {
   const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
   
   const queryClient = useQueryClient();
+  const { user } = useAuthStore();
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project', projectId],
@@ -42,6 +44,9 @@ export default function ProjectBoard() {
     },
     enabled: !!project?.teamId,
   });
+
+  const currentUserRole = teamMembers?.find((m: any) => m.userId === user?.id)?.role;
+  const canAssign = currentUserRole === 'LEAD' || user?.globalRole === 'SUPER_ADMIN';
 
   const updateIssueMutation = useMutation({
     mutationFn: async ({ issueId, payload }: { issueId: string, payload: any }) => {
@@ -138,6 +143,7 @@ export default function ProjectBoard() {
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
+                            canAssign={canAssign}
                             onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
@@ -185,6 +191,7 @@ export default function ProjectBoard() {
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
+                            canAssign={canAssign}
                             onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
@@ -232,6 +239,7 @@ export default function ProjectBoard() {
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
+                            canAssign={canAssign}
                             onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
@@ -254,7 +262,7 @@ export default function ProjectBoard() {
         </div>
       </DragDropContext>
 
-      <CreateIssueModal isOpen={isIssueModalOpen} onClose={() => setIsIssueModalOpen(false)} projectId={projectId as string} teamId={project.teamId} />
+      <CreateIssueModal isOpen={isIssueModalOpen} onClose={() => setIsIssueModalOpen(false)} projectId={projectId as string} teamId={project.teamId} canAssign={canAssign} />
       {activeIssueId && (
         <>
           <LogProgressModal isOpen={isLogModalOpen} onClose={() => setIsLogModalOpen(false)} issueId={activeIssueId} />
@@ -265,7 +273,7 @@ export default function ProjectBoard() {
   );
 }
 
-function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, onAssigneeChange, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, teamMembers: any[], onAssigneeChange: (id: string) => void, onLogProgress: () => void, onLogTime: () => void }) {
+function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign, onAssigneeChange, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, teamMembers: any[], canAssign: boolean, onAssigneeChange: (id: string) => void, onLogProgress: () => void, onLogTime: () => void }) {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'BUG': return 'bg-red-500/10 text-red-600 border-red-500/20';
@@ -297,17 +305,28 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, onAssignee
       
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100/80 relative z-10">
         <div className="flex items-center">
-          <select 
-            value={issue.assigneeId || ''}
-            onChange={(e) => onAssigneeChange(e.target.value)}
-            className="text-[10px] font-bold bg-slate-100/50 hover:bg-slate-200/80 border-none rounded-lg py-1 pl-2 pr-6 outline-none text-slate-600 cursor-pointer transition-colors shadow-sm appearance-none max-w-[120px] truncate"
-            style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .3rem top 50%', backgroundSize: '.6rem auto' }}
-          >
-            <option value="">Unassigned</option>
-            {teamMembers.map(m => (
-              <option key={m.userId} value={m.userId}>{m.name}</option>
-            ))}
-          </select>
+          {canAssign ? (
+            <select 
+              value={issue.assigneeId || ''}
+              onChange={(e) => onAssigneeChange(e.target.value)}
+              className="text-[10px] font-bold bg-slate-100/50 hover:bg-slate-200/80 border-none rounded-lg py-1 pl-2 pr-6 outline-none text-slate-600 cursor-pointer transition-colors shadow-sm appearance-none max-w-[120px] truncate"
+              style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .3rem top 50%', backgroundSize: '.6rem auto' }}
+            >
+              <option value="">Unassigned</option>
+              {teamMembers.map(m => (
+                <option key={m.userId} value={m.userId}>{m.name}</option>
+              ))}
+            </select>
+          ) : (
+            <div className="flex items-center gap-2">
+              <div className="w-6 h-6 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-400">
+                {issue.assigneeId ? teamMembers.find(m => m.userId === issue.assigneeId)?.name?.charAt(0).toUpperCase() || 'U' : '?'}
+              </div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider max-w-[80px] truncate">
+                {issue.assigneeId ? teamMembers.find(m => m.userId === issue.assigneeId)?.name || 'Assigned' : 'Unassigned'}
+              </span>
+            </div>
+          )}
         </div>
         
         <div className="flex gap-1.5">

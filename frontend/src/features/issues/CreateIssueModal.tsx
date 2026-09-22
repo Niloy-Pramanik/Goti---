@@ -9,9 +9,10 @@ interface CreateIssueModalProps {
   projectId: string;
   milestoneId?: string;
   teamId?: string;
+  canAssign?: boolean;
 }
 
-export default function CreateIssueModal({ isOpen, onClose, projectId, milestoneId, teamId }: CreateIssueModalProps) {
+export default function CreateIssueModal({ isOpen, onClose, projectId, milestoneId, teamId, canAssign = true }: CreateIssueModalProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState('TASK');
@@ -119,7 +120,7 @@ export default function CreateIssueModal({ isOpen, onClose, projectId, milestone
               </select>
             </div>
 
-            {teamId && (
+            {teamId && canAssign && (
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Assignee</label>
                 <select
