@@ -1,5 +1,28 @@
 @import "tailwindcss";
 
+@theme {
+  --color-slate-50: #F7F8F9;
+  --color-slate-100: #F1F3F5;
+  --color-slate-200: #E2E8F0;
+  --color-slate-300: #CBD5E1;
+  --color-slate-400: #94A3B8;
+  --color-slate-500: #64748B;
+  --color-slate-600: #475569;
+  --color-slate-700: #334155;
+  --color-slate-800: #1E293B;
+  --color-slate-900: #0F172A;
+  
+  --color-brand-50: #eff6ff;
+  --color-brand-100: #dbeafe;
+  --color-brand-500: #3b82f6;
+  --color-brand-600: #2563eb;
+  --color-brand-700: #1d4ed8;
+
+  --font-sans: 'Inter', sans-serif;
+  
+  --radius-3xl: 1.5rem;
+}
+
 @layer base {
   body {
     @apply bg-slate-50 text-slate-900 font-sans antialiased;
