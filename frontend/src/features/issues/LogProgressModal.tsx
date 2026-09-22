@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { X, Loader2 } from 'lucide-react';
 import apiClient from '../../api/client';
 
@@ -15,6 +15,15 @@ export default function LogProgressModal({ isOpen, onClose, issueId }: LogProgre
   const [error, setError] = useState('');
   
   const queryClient = useQueryClient();
+
+  const { data: logs, isLoading: logsLoading } = useQuery({
+    queryKey: ['progress', issueId],
+    queryFn: async () => {
+      const response = await apiClient.get(`/api/issues/${issueId}/progress`);
+      return response.data;
+    },
+    enabled: isOpen,
+  });
 
   const logProgressMutation = useMutation({
     mutationFn: async (data: { comment: string; delayDays: number }) => {
@@ -58,6 +67,29 @@ export default function LogProgressModal({ isOpen, onClose, issueId }: LogProgre
           </button>
         </div>
 
+        <div className="px-6 py-4 max-h-60 overflow-y-auto bg-slate-50 border-b border-slate-100 space-y-3">
+          {logsLoading ? (
+            <div className="flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-400" /></div>
+          ) : logs && logs.length > 0 ? (
+            logs.map((log: any) => (
+              <div key={log.id} className="bg-white p-3 rounded-lg border border-slate-200 shadow-sm text-sm">
+                <div className="flex justify-between items-start mb-1">
+                  <span className="font-bold text-slate-800">{log.userName}</span>
+                  <span className="text-xs text-slate-400">{new Date(log.createdAt).toLocaleDateString()}</span>
+                </div>
+                <p className="text-slate-600 mb-2">{log.comment}</p>
+                {log.delayDays > 0 && (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">
+                    Delay: {log.delayDays} day(s)
+                  </span>
+                )}
+              </div>
+            ))
+          ) : (
+            <div className="text-center text-sm text-slate-500 py-2">No progress logs yet.</div>
+          )}
+        </div>
+
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {error && (
             <div className="p-3 text-sm text-red-600 bg-red-50 rounded-lg border border-red-100">
@@ -99,7 +131,7 @@ export default function LogProgressModal({ isOpen, onClose, issueId }: LogProgre
             <button
               type="submit"
               disabled={logProgressMutation.isPending}
-              className="flex-1 bg-brand-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-brand-700 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+              className="flex-1 bg-slate-900 text-white px-4 py-2 rounded-xl font-bold hover:bg-slate-800 transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
             >
               {logProgressMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Log Progress

@@ -88,7 +88,21 @@ public class IssueService {
         if (request.getTitle() != null) issue.setTitle(request.getTitle());
         if (request.getDescription() != null) issue.setDescription(request.getDescription());
         if (request.getType() != null) issue.setType(request.getType());
-        if (request.getStatus() != null) issue.setStatus(request.getStatus());
+        if (request.getStatus() != null && !request.getStatus().equals(issue.getStatus())) {
+            issue.setStatus(request.getStatus());
+            
+            // Notify team leads
+            List<UUID> leads = teamService.getLeads(project.getTeamId());
+            for (UUID leadId : leads) {
+                if (!leadId.equals(actorId)) {
+                    notificationService.createNotification(
+                        leadId,
+                        "Issue Status Changed",
+                        "Issue '" + issue.getTitle() + "' status changed to " + request.getStatus()
+                    );
+                }
+            }
+        }
         
         if (request.isUpdateMilestoneId()) {
             issue.setMilestoneId(request.getMilestoneId());

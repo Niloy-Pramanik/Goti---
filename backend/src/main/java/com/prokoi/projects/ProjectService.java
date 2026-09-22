@@ -48,7 +48,8 @@ public class ProjectService {
         project.setStorageLink(request.getStorageLink());
 
         Project saved = projectRepository.save(project);
-        return ProjectResponse.from(saved);
+        Team team = teamService.getTeamEntity(teamId);
+        return ProjectResponse.from(saved, team.getOrgId());
     }
 
     /**
@@ -58,8 +59,10 @@ public class ProjectService {
         // Verify team membership (via org membership check in TeamService)
         teamService.getTeam(teamId, userId);
 
+        Team team = teamService.getTeamEntity(teamId);
+
         return projectRepository.findByTeamId(teamId).stream()
-                .map(ProjectResponse::from)
+                .map(p -> ProjectResponse.from(p, team.getOrgId()))
                 .collect(Collectors.toList());
     }
 
@@ -77,7 +80,7 @@ public class ProjectService {
             teamService.getTeam(project.getTeamId(), userId);
         }
 
-        return ProjectResponse.from(project);
+        return ProjectResponse.from(project, team.getOrgId());
     }
 
     /**
@@ -99,8 +102,11 @@ public class ProjectService {
                 request.getStorageLink()
         );
 
+        Team team = teamService.getTeamEntity(project.getTeamId());
+
         return ProjectResponse.from(
-                projectRepository.findById(projectId).orElseThrow()
+                projectRepository.findById(projectId).orElseThrow(),
+                team.getOrgId()
         );
     }
 

@@ -14,6 +14,7 @@ public class ProjectResponse {
     private String name;
     private String description;
     private UUID teamId;
+    private UUID orgId;
     private String repoLink;
     private String meetingLink;
     private String storageLink;
@@ -21,13 +22,14 @@ public class ProjectResponse {
 
     public ProjectResponse() {}
 
-    public ProjectResponse(UUID id, String name, String description, UUID teamId,
+    public ProjectResponse(UUID id, String name, String description, UUID teamId, UUID orgId,
                            String repoLink, String meetingLink, String storageLink,
                            LocalDateTime createdAt) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.teamId = teamId;
+        this.orgId = orgId;
         this.repoLink = repoLink;
         this.meetingLink = meetingLink;
         this.storageLink = storageLink;
@@ -46,6 +48,9 @@ public class ProjectResponse {
     public UUID getTeamId() { return teamId; }
     public void setTeamId(UUID teamId) { this.teamId = teamId; }
 
+    public UUID getOrgId() { return orgId; }
+    public void setOrgId(UUID orgId) { this.orgId = orgId; }
+
     public String getRepoLink() { return repoLink; }
     public void setRepoLink(String repoLink) { this.repoLink = repoLink; }
 
@@ -58,9 +63,9 @@ public class ProjectResponse {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    public static ProjectResponse from(Project p) {
+    public static ProjectResponse from(Project p, UUID orgId) {
         return new ProjectResponse(
-                p.getId(), p.getName(), p.getDescription(), p.getTeamId(),
+                p.getId(), p.getName(), p.getDescription(), p.getTeamId(), orgId,
                 p.getRepoLink(), p.getMeetingLink(), p.getStorageLink(), p.getCreatedAt()
         );
     }

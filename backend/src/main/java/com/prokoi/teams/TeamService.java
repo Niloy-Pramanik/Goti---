@@ -165,6 +165,16 @@ public class TeamService {
     }
 
     /**
+     * Get user IDs of all LEADs in a team.
+     */
+    public List<UUID> getLeads(UUID teamId) {
+        return teamMemberRepository.findByTeamId(teamId).stream()
+                .filter(m -> "LEAD".equals(m.getRole()))
+                .map(TeamMember::getUserId)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Get team by ID (internal use by other modules).
      */
     public Team getTeamEntity(UUID teamId) {

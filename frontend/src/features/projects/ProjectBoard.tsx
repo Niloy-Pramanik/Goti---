@@ -33,9 +33,19 @@ export default function ProjectBoard() {
     },
   });
 
-  const updateIssueStatusMutation = useMutation({
-    mutationFn: async ({ issueId, status }: { issueId: string, status: string }) => {
-      const response = await apiClient.patch(`/api/issues/${issueId}`, { status });
+  const { data: teamMembers } = useQuery({
+    queryKey: ['teamMembers', project?.teamId],
+    queryFn: async () => {
+      if (!project?.teamId) return [];
+      const response = await apiClient.get(`/api/teams/${project.teamId}/members`);
+      return response.data;
+    },
+    enabled: !!project?.teamId,
+  });
+
+  const updateIssueMutation = useMutation({
+    mutationFn: async ({ issueId, payload }: { issueId: string, payload: any }) => {
+      const response = await apiClient.patch(`/api/issues/${issueId}`, payload);
       return response.data;
     },
     onSuccess: () => {
@@ -64,7 +74,7 @@ export default function ProjectBoard() {
     });
 
     // Fire the API call
-    updateIssueStatusMutation.mutate({ issueId: draggableId, status: destination.droppableId });
+    updateIssueMutation.mutate({ issueId: draggableId, payload: { status: destination.droppableId } });
   };
 
   if (projectLoading || issuesLoading) {
@@ -90,7 +100,7 @@ export default function ProjectBoard() {
         </div>
         <button
           onClick={() => setIsIssueModalOpen(true)}
-          className="flex items-center gap-2 bg-brand-600 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-brand-700 transition-all shadow-sm"
+          className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm"
         >
           <Plus className="w-4 h-4" />
           New Issue
@@ -127,6 +137,8 @@ export default function ProjectBoard() {
                             issue={issue} 
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
+                            teamMembers={teamMembers || []}
+                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
                           />
@@ -172,6 +184,8 @@ export default function ProjectBoard() {
                             issue={issue} 
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
+                            teamMembers={teamMembers || []}
+                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
                           />
@@ -217,6 +231,8 @@ export default function ProjectBoard() {
                             issue={issue} 
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
+                            teamMembers={teamMembers || []}
+                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
                           />
@@ -249,47 +265,65 @@ export default function ProjectBoard() {
   );
 }
 
-function IssueCard({ issue, dragHandleProps, isDragging, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, onLogProgress: () => void, onLogTime: () => void }) {
+function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, onAssigneeChange, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, teamMembers: any[], onAssigneeChange: (id: string) => void, onLogProgress: () => void, onLogTime: () => void }) {
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'BUG': return 'bg-red-50 text-red-600 border-red-100';
-      case 'FEATURE': return 'bg-purple-50 text-purple-600 border-purple-100';
-      default: return 'bg-blue-50 text-blue-600 border-blue-100';
+      case 'BUG': return 'bg-red-500/10 text-red-600 border-red-500/20';
+      case 'FEATURE': return 'bg-purple-500/10 text-purple-600 border-purple-500/20';
+      default: return 'bg-blue-500/10 text-blue-600 border-blue-500/20';
     }
   };
 
   return (
-    <div className={`bg-white p-4 rounded-xl border transition-all ${isDragging ? 'shadow-xl border-brand-300 ring-2 ring-brand-500/20 rotate-1' : 'shadow-sm border-slate-200 hover:shadow-md'}`}>
-      <div className="flex justify-between items-start mb-2 group">
-        <span className={`text-[10px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider border ${getTypeColor(issue.type)}`}>
+    <div className={`bg-white/90 backdrop-blur-xl p-5 rounded-2xl border transition-all duration-200 relative overflow-hidden ${isDragging ? 'shadow-2xl border-brand-400 ring-4 ring-brand-500/20 rotate-2 scale-105' : 'shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-white/60 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:bg-white'}`}>
+      
+      {/* Decorative gradient blob at top right */}
+      <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-brand-100 to-transparent rounded-full blur-xl opacity-60 pointer-events-none"></div>
+
+      <div className="flex justify-between items-start mb-3 group relative z-10">
+        <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border ${getTypeColor(issue.type)}`}>
           {issue.type}
         </span>
-        <div {...dragHandleProps} className="text-slate-300 hover:text-slate-500 cursor-grab active:cursor-grabbing p-1 -mr-2">
+        <div {...dragHandleProps} className="text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg cursor-grab active:cursor-grabbing p-1.5 -mr-2 transition-colors">
           <GripVertical className="w-4 h-4" />
         </div>
       </div>
-      <h4 className="font-bold text-slate-900 text-sm mb-1">{issue.title}</h4>
+      
+      <h4 className="font-extrabold text-slate-900 text-sm mb-1.5 leading-snug relative z-10">{issue.title}</h4>
+      
       {issue.description && (
-        <p className="text-xs text-slate-500 line-clamp-2 mb-3">{issue.description}</p>
+        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4 relative z-10">{issue.description}</p>
       )}
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-100">
-        <div className="text-xs font-medium text-slate-500">
-          {issue.assigneeId ? 'Assigned' : 'Unassigned'}
+      
+      <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100/80 relative z-10">
+        <div className="flex items-center">
+          <select 
+            value={issue.assigneeId || ''}
+            onChange={(e) => onAssigneeChange(e.target.value)}
+            className="text-[10px] font-bold bg-slate-100/50 hover:bg-slate-200/80 border-none rounded-lg py-1 pl-2 pr-6 outline-none text-slate-600 cursor-pointer transition-colors shadow-sm appearance-none max-w-[120px] truncate"
+            style={{ backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2364748B%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right .3rem top 50%', backgroundSize: '.6rem auto' }}
+          >
+            <option value="">Unassigned</option>
+            {teamMembers.map(m => (
+              <option key={m.userId} value={m.userId}>{m.name}</option>
+            ))}
+          </select>
         </div>
-        <div className="flex gap-2">
+        
+        <div className="flex gap-1.5">
           <button 
             onClick={onLogTime}
-            className="text-slate-400 hover:text-brand-600 transition-colors"
+            className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
             title="Log Time"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </button>
           <button 
             onClick={onLogProgress}
-            className="text-slate-400 hover:text-brand-600 transition-colors"
+            className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
             title="Log Progress/Blocker"
           >
-            <MessageSquare className="w-4 h-4" />
+            <MessageSquare className="w-3.5 h-3.5" strokeWidth={2.5} />
           </button>
         </div>
       </div>

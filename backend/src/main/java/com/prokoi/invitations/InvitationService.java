@@ -12,6 +12,7 @@ import com.prokoi.teams.TeamRepository;
 import com.prokoi.teams.TeamMemberRepository;
 import com.prokoi.users.User;
 import com.prokoi.users.UserService;
+import com.prokoi.email.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +30,7 @@ public class InvitationService {
     private final TeamRepository teamRepository;
     private final TeamMemberRepository teamMemberRepository;
     private final UserService userService;
+    private final EmailService emailService;
 
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
@@ -40,12 +42,14 @@ public class InvitationService {
                              OrganizationRepository orgRepository,
                              TeamRepository teamRepository,
                              TeamMemberRepository teamMemberRepository,
-                             UserService userService) {
+                             UserService userService,
+                             EmailService emailService) {
         this.invitationRepository = invitationRepository;
         this.orgRepository = orgRepository;
         this.teamRepository = teamRepository;
         this.teamMemberRepository = teamMemberRepository;
         this.userService = userService;
+        this.emailService = emailService;
     }
 
     @Transactional
@@ -73,7 +77,18 @@ public class InvitationService {
 
         invitationRepository.save(invitation);
 
-        return InvitationResponse.from(invitation, org.getName(), actor.getName(), frontendUrl);
+        InvitationResponse response = InvitationResponse.from(invitation, org.getName(), actor.getName(), frontendUrl);
+        
+        String subject = "You've been invited to join " + org.getName() + " on ProKoi";
+        String body = "Hi there,\n\n" +
+                actor.getName() + " has invited you to join the organization '" + org.getName() + "' on ProKoi.\n\n" +
+                "Click the link below to accept your invitation:\n" +
+                response.getInviteLink() + "\n\n" +
+                "This invitation expires in " + EXPIRY_DAYS + " days.\n\n" +
+                "Thanks,\nThe ProKoi Team";
+        emailService.sendEmail(request.getEmail(), subject, body);
+
+        return response;
     }
 
     @Transactional
@@ -105,7 +120,18 @@ public class InvitationService {
 
         invitationRepository.save(invitation);
 
-        return InvitationResponse.from(invitation, org.getName(), actor.getName(), frontendUrl, team.getName());
+        InvitationResponse response = InvitationResponse.from(invitation, org.getName(), actor.getName(), frontendUrl, team.getName());
+        
+        String subject = "You've been invited to join the team " + team.getName() + " on ProKoi";
+        String body = "Hi there,\n\n" +
+                actor.getName() + " has invited you to join the team '" + team.getName() + "' (in " + org.getName() + ") on ProKoi.\n\n" +
+                "Click the link below to accept your invitation:\n" +
+                response.getInviteLink() + "\n\n" +
+                "This invitation expires in " + EXPIRY_DAYS + " days.\n\n" +
+                "Thanks,\nThe ProKoi Team";
+        emailService.sendEmail(request.getEmail(), subject, body);
+
+        return response;
     }
 
     @Transactional

@@ -41,7 +41,7 @@ export default function Sidebar() {
           <div className="px-3 space-y-4">
             <div className="px-3 pb-4 border-b border-slate-200/60">
               <Link 
-                to={project?.teamId ? `/orgs/${project.teamId}` : '/dashboard'} 
+                to={project?.orgId ? `/orgs/${project.orgId}` : '/dashboard'} 
                 className="flex items-center gap-2 text-xs font-semibold text-slate-500 hover:text-slate-900 mb-4"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to Organization

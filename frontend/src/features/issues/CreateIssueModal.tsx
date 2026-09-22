@@ -129,8 +129,8 @@ export default function CreateIssueModal({ isOpen, onClose, projectId, milestone
                 >
                   <option value="">Unassigned</option>
                   {teamMembers?.map((member: any) => (
-                    <option key={member.id} value={member.userId}>
-                      {member.userName}
+                    <option key={member.userId} value={member.userId}>
+                      {member.name}
                     </option>
                   ))}
                 </select>
