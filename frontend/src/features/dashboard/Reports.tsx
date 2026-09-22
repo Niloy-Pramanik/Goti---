@@ -21,7 +21,8 @@ export default function Reports() {
       const response = await apiClient.get('/api/reports');
       return response.data;
     },
-    retry: false
+    retry: false,
+    refetchInterval: 5000
   });
 
   const { data: projects, isLoading: isLoadingProjects } = useQuery({
@@ -30,7 +31,8 @@ export default function Reports() {
       const response = await apiClient.get('/api/reports/projects');
       return response.data;
     },
-    enabled: activeTab === 'projects' && !isError
+    enabled: activeTab === 'projects' && !isError,
+    refetchInterval: 5000
   });
 
   const { data: tasks, isLoading: isLoadingTasks } = useQuery({
@@ -39,7 +41,8 @@ export default function Reports() {
       const response = await apiClient.get('/api/reports/tasks');
       return response.data;
     },
-    enabled: activeTab === 'tasks' && !isError
+    enabled: activeTab === 'tasks' && !isError,
+    refetchInterval: 5000
   });
 
   const { data: timeline, isLoading: isLoadingTimeline } = useQuery({
@@ -48,7 +51,8 @@ export default function Reports() {
       const response = await apiClient.get('/api/reports/timeline');
       return response.data;
     },
-    enabled: activeTab === 'timeline' && !isError
+    enabled: activeTab === 'timeline' && !isError,
+    refetchInterval: 5000
   });
 
   const formatHours = (minutes: number) => {
