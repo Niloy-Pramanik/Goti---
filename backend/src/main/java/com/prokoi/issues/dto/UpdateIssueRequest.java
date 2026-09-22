@@ -9,8 +9,10 @@ public class UpdateIssueRequest {
     private String status;
     private UUID milestoneId;
     private UUID assigneeId;
+    private java.time.OffsetDateTime dueDate;
     private boolean updateMilestoneId = false;
     private boolean updateAssigneeId = false;
+    private boolean updateDueDate = false;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -34,4 +36,11 @@ public class UpdateIssueRequest {
         this.updateAssigneeId = true;
     }
     public boolean isUpdateAssigneeId() { return updateAssigneeId; }
+
+    public java.time.OffsetDateTime getDueDate() { return dueDate; }
+    public void setDueDate(java.time.OffsetDateTime dueDate) {
+        this.dueDate = dueDate;
+        this.updateDueDate = true;
+    }
+    public boolean isUpdateDueDate() { return updateDueDate; }
 }

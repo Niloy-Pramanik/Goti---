@@ -61,6 +61,7 @@ public class IssueService {
         issue.setStatus("TO_DO"); // Default status
         issue.setTitle(request.getTitle());
         issue.setDescription(request.getDescription());
+        issue.setDueDate(request.getDueDate());
         issue.setCreatedAt(OffsetDateTime.now());
 
         Issue saved = issueRepository.save(issue);
@@ -126,6 +127,10 @@ public class IssueService {
             issue.setMilestoneId(request.getMilestoneId());
         }
         
+        if (request.isUpdateDueDate()) {
+            issue.setDueDate(request.getDueDate());
+        }
+        
         if (request.isUpdateAssigneeId()) {
             if (request.getAssigneeId() != null && !teamService.isMember(project.getTeamId(), request.getAssigneeId())) {
                 throw new ForbiddenException("Assignee must be a member of the team");
@@ -176,6 +181,7 @@ public class IssueService {
                 issue.getTitle(),
                 issue.getDescription(),
                 issue.getCreatedAt(),
+                issue.getDueDate(),
                 issue.getTotalTimeLogged()
         );
     }

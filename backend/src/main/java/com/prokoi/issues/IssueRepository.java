@@ -29,6 +29,7 @@ public class IssueRepository {
         issue.setTitle(rs.getString("title"));
         issue.setDescription(rs.getString("description"));
         issue.setCreatedAt(rs.getObject("created_at", OffsetDateTime.class));
+        issue.setDueDate(rs.getObject("due_date", OffsetDateTime.class));
         return issue;
     };
 
@@ -41,10 +42,10 @@ public class IssueRepository {
 
     public Issue save(Issue issue) {
         jdbc.update(
-                "INSERT INTO issues (id, project_id, milestone_id, assignee_id, type, status, title, description, created_at) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT INTO issues (id, project_id, milestone_id, assignee_id, type, status, title, description, created_at, due_date) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 issue.getId(), issue.getProjectId(), issue.getMilestoneId(), issue.getAssigneeId(),
-                issue.getType(), issue.getStatus(), issue.getTitle(), issue.getDescription(), issue.getCreatedAt()
+                issue.getType(), issue.getStatus(), issue.getTitle(), issue.getDescription(), issue.getCreatedAt(), issue.getDueDate()
         );
         return issue;
     }
@@ -75,9 +76,9 @@ public class IssueRepository {
 
     public void update(Issue issue) {
         jdbc.update(
-                "UPDATE issues SET milestone_id = ?, assignee_id = ?, type = ?, status = ?, title = ?, description = ? WHERE id = ?",
+                "UPDATE issues SET milestone_id = ?, assignee_id = ?, type = ?, status = ?, title = ?, description = ?, due_date = ? WHERE id = ?",
                 issue.getMilestoneId(), issue.getAssigneeId(), issue.getType(), issue.getStatus(), 
-                issue.getTitle(), issue.getDescription(), issue.getId()
+                issue.getTitle(), issue.getDescription(), issue.getDueDate(), issue.getId()
         );
     }
 }

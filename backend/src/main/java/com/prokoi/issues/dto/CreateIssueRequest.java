@@ -15,6 +15,7 @@ public class CreateIssueRequest {
 
     private UUID milestoneId;
     private UUID assigneeId;
+    private java.time.OffsetDateTime dueDate;
 
     public String getTitle() { return title; }
     public void setTitle(String title) { this.title = title; }
@@ -26,4 +27,6 @@ public class CreateIssueRequest {
     public void setMilestoneId(UUID milestoneId) { this.milestoneId = milestoneId; }
     public UUID getAssigneeId() { return assigneeId; }
     public void setAssigneeId(UUID assigneeId) { this.assigneeId = assigneeId; }
+    public java.time.OffsetDateTime getDueDate() { return dueDate; }
+    public void setDueDate(java.time.OffsetDateTime dueDate) { this.dueDate = dueDate; }
 }

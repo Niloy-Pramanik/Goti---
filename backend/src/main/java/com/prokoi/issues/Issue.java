@@ -13,6 +13,7 @@ public class Issue {
     private String title;
     private String description;
     private OffsetDateTime createdAt;
+    private OffsetDateTime dueDate;
     private Integer totalTimeLogged = 0;
 
     // Getters and setters
@@ -34,6 +35,9 @@ public class Issue {
     public void setDescription(String description) { this.description = description; }
     public OffsetDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
+
+    public OffsetDateTime getDueDate() { return dueDate; }
+    public void setDueDate(OffsetDateTime dueDate) { this.dueDate = dueDate; }
 
     public Integer getTotalTimeLogged() { return totalTimeLogged; }
     public void setTotalTimeLogged(Integer totalTimeLogged) { this.totalTimeLogged = totalTimeLogged; }
