@@ -17,6 +17,7 @@ export default function MyTasks() {
       const response = await apiClient.get('/api/dashboard/my-issues');
       return response.data;
     },
+    refetchInterval: 5000,
   });
 
   const updateIssueStatusMutation = useMutation({
@@ -145,7 +146,7 @@ function TaskCard({ issue, onStatusChange, onLogProgress, onLogTime }: { issue: 
   };
 
   return (
-    <div className="bg-white/90 backdrop-blur-xl p-5 rounded-2xl border transition-all duration-200 relative overflow-hidden shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-white/60 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:bg-white group">
+    <div className="bg-white p-5 rounded-2xl border transition-all duration-200 relative overflow-hidden shadow-md shadow-slate-200/50 border-slate-200 hover:shadow-xl hover:shadow-brand-100 hover:-translate-y-1 hover:border-brand-200 group">
       
       {/* Decorative gradient blob at top right */}
       <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-brand-100 to-transparent rounded-full blur-xl opacity-60 pointer-events-none transition-opacity group-hover:opacity-100"></div>

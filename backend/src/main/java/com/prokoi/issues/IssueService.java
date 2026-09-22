@@ -21,12 +21,23 @@ public class IssueService {
     private final ProjectService projectService;
     private final TeamService teamService;
     private final com.prokoi.inbox.NotificationService notificationService;
+    private final com.prokoi.users.UserRepository userRepository;
+    private final com.prokoi.email.EmailService emailService;
 
-    public IssueService(IssueRepository issueRepository, ProjectService projectService, TeamService teamService, com.prokoi.inbox.NotificationService notificationService) {
+    public IssueService(
+        IssueRepository issueRepository, 
+        ProjectService projectService, 
+        TeamService teamService, 
+        com.prokoi.inbox.NotificationService notificationService,
+        com.prokoi.users.UserRepository userRepository,
+        com.prokoi.email.EmailService emailService
+    ) {
         this.issueRepository = issueRepository;
         this.projectService = projectService;
         this.teamService = teamService;
         this.notificationService = notificationService;
+        this.userRepository = userRepository;
+        this.emailService = emailService;
     }
 
     public IssueResponse createIssue(UUID projectId, CreateIssueRequest request, UUID actorId) {
@@ -60,6 +71,13 @@ public class IssueService {
                 "New Issue Assigned",
                 "You have been assigned to issue: " + saved.getTitle()
             );
+            userRepository.findById(saved.getAssigneeId()).ifPresent(user -> {
+                emailService.sendEmail(
+                    user.getEmail(),
+                    "New Task Assigned: " + saved.getTitle(),
+                    "Hello " + user.getName() + ",\n\nYou have been assigned a new task: " + saved.getTitle() + "\n\nLog in to your dashboard to view it."
+                );
+            });
         }
         
         return mapToResponse(saved);
@@ -121,6 +139,13 @@ public class IssueService {
                     "Issue Re-assigned",
                     "You have been assigned to issue: " + issue.getTitle()
                 );
+                userRepository.findById(request.getAssigneeId()).ifPresent(user -> {
+                    emailService.sendEmail(
+                        user.getEmail(),
+                        "Task Re-assigned to You: " + issue.getTitle(),
+                        "Hello " + user.getName() + ",\n\nYou have been assigned a new task: " + issue.getTitle() + "\n\nLog in to your dashboard to view it."
+                    );
+                });
             }
         }
 

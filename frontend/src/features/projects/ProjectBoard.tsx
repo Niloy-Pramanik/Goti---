@@ -98,18 +98,21 @@ export default function ProjectBoard() {
 
   return (
     <div className="relative min-h-[calc(100vh-6rem)] max-w-6xl mx-auto">
-      <div className="flex justify-between items-center mb-8">
+      <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Issue Board</h1>
-          <p className="text-slate-500 mt-1 font-medium">Manage tasks and bugs for {project.name}</p>
+          <h2 className="text-2xl font-bold text-slate-900 mb-2">Project Board</h2>
+          <p className="text-slate-500 text-sm font-medium">Manage and track project issues</p>
         </div>
-        <button
-          onClick={() => setIsIssueModalOpen(true)}
-          className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm"
-        >
-          <Plus className="w-4 h-4" />
-          New Issue
-        </button>
+        
+        {canAssign && (
+          <button
+            onClick={() => setIsIssueModalOpen(true)}
+            className="flex items-center gap-2 bg-slate-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-slate-800 transition-all shadow-sm"
+          >
+            <Plus className="w-4 h-4" />
+            New Issue
+          </button>
+        )}
       </div>
 
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -283,7 +286,7 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign,
   };
 
   return (
-    <div className={`bg-white/90 backdrop-blur-xl p-5 rounded-2xl border transition-all duration-200 relative overflow-hidden ${isDragging ? 'shadow-2xl border-brand-400 ring-4 ring-brand-500/20 rotate-2 scale-105' : 'shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] border-white/60 hover:shadow-[0_8px_30px_-4px_rgba(0,0,0,0.1)] hover:-translate-y-1 hover:bg-white'}`}>
+    <div className={`bg-white p-5 rounded-2xl border transition-all duration-200 relative overflow-hidden shadow-md shadow-slate-200/50 border-slate-200 hover:shadow-xl hover:shadow-brand-100 hover:-translate-y-1 hover:border-brand-200 group ${isDragging ? 'shadow-2xl border-brand-400 ring-4 ring-brand-500/20 rotate-2 scale-105 bg-brand-50' : ''}`}>
       
       {/* Decorative gradient blob at top right */}
       <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-brand-100 to-transparent rounded-full blur-xl opacity-60 pointer-events-none"></div>
