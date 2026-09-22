@@ -132,7 +132,7 @@ public class ReportService {
     public List<com.prokoi.dashboard.dto.TaskReportDTO> getTasksReport(UUID userId) {
         verifyAdmin(userId);
         return jdbc.query(
-                "SELECT i.id, i.title, i.status, i.priority, u.name as assignee_name, p.name as project_name, t.name as team_name, o.name as org_name, i.due_date " +
+                "SELECT i.id, i.title, i.status, 'MEDIUM' as priority, u.name as assignee_name, p.name as project_name, t.name as team_name, o.name as org_name, i.due_date " +
                 "FROM issues i " +
                 "JOIN projects p ON i.project_id = p.id " +
                 "JOIN teams t ON p.team_id = t.id " +
@@ -179,7 +179,7 @@ public class ReportService {
         // 2. For each member, get their active tasks (not DONE) in these orgs
         for (com.prokoi.dashboard.dto.TeamTimelineDTO member : members) {
             List<com.prokoi.dashboard.dto.TaskReportDTO> tasks = jdbc.query(
-                    "SELECT i.id, i.title, i.status, i.priority, u.name as assignee_name, p.name as project_name, t.name as team_name, o.name as org_name, i.due_date " +
+                    "SELECT i.id, i.title, i.status, 'MEDIUM' as priority, u.name as assignee_name, p.name as project_name, t.name as team_name, o.name as org_name, i.due_date " +
                     "FROM issues i " +
                     "JOIN projects p ON i.project_id = p.id " +
                     "JOIN teams t ON p.team_id = t.id " +
