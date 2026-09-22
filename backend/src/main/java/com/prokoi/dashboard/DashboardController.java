@@ -1,6 +1,7 @@
 package com.prokoi.dashboard;
 
 import com.prokoi.dashboard.dto.MyIssueResponse;
+import com.prokoi.dashboard.dto.DashboardProjectDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,5 +23,11 @@ public class DashboardController {
     public ResponseEntity<List<MyIssueResponse>> getMyIssues(Authentication auth) {
         UUID userId = (UUID) auth.getPrincipal();
         return ResponseEntity.ok(dashboardService.getMyAssignedIssues(userId));
+    }
+
+    @GetMapping("/api/dashboard/my-projects")
+    public ResponseEntity<List<DashboardProjectDTO>> getMyProjects(Authentication auth) {
+        UUID userId = (UUID) auth.getPrincipal();
+        return ResponseEntity.ok(dashboardService.getMyProjects(userId));
     }
 }

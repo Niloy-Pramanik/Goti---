@@ -17,5 +17,6 @@ public record MyIssueResponse(
         String status,
         String title,
         String description,
-        OffsetDateTime createdAt
+        OffsetDateTime createdAt,
+        OffsetDateTime dueDate
 ) {}
