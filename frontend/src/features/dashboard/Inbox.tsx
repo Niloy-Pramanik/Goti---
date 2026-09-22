@@ -14,6 +14,7 @@ export default function Inbox() {
       const response = await apiClient.get('/api/notifications');
       return response.data;
     },
+    refetchInterval: 5000,
   });
 
   const markAsReadMutation = useMutation({

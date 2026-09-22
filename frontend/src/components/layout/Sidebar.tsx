@@ -27,6 +27,18 @@ export default function Sidebar() {
     enabled: !!projectId,
   });
 
+  const { data: notifications } = useQuery({
+    queryKey: ['notifications'],
+    queryFn: async () => {
+      const response = await apiClient.get('/api/notifications');
+      return response.data;
+    },
+    refetchInterval: 5000, // Poll every 5 seconds for instant updates
+    enabled: !!user,
+  });
+
+  const unreadCount = notifications?.filter((n: any) => !n.isRead).length || 0;
+
   return (
     <div className="w-64 h-screen bg-white/70 backdrop-blur-md border-r border-slate-200/60 flex flex-col justify-between py-6 flex-shrink-0">
       <div>
@@ -101,7 +113,12 @@ export default function Sidebar() {
               }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-inbox"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
-              Inbox
+              <span className="flex-1">Inbox</span>
+              {unreadCount > 0 && (
+                <span className="bg-brand-500 text-white text-[10px] font-black px-2 py-0.5 rounded-full">
+                  {unreadCount}
+                </span>
+              )}
             </Link>
             <Link
               to="/my-tasks"
