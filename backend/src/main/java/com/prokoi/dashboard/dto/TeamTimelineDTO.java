@@ -9,6 +9,12 @@ public class TeamTimelineDTO {
     private String email;
     private List<TaskReportDTO> tasks;
 
+    // Individual tracking stats
+    private int totalTimeLoggedMinutes;
+    private int totalTasksAssigned;
+    private int totalTasksCompleted;
+    private int tasksCompletedWithoutTime; // cheating flag
+
     public TeamTimelineDTO() {}
 
     public TeamTimelineDTO(UUID memberId, String memberName, String email, List<TaskReportDTO> tasks) {
@@ -26,4 +32,13 @@ public class TeamTimelineDTO {
     public void setEmail(String email) { this.email = email; }
     public List<TaskReportDTO> getTasks() { return tasks; }
     public void setTasks(List<TaskReportDTO> tasks) { this.tasks = tasks; }
+
+    public int getTotalTimeLoggedMinutes() { return totalTimeLoggedMinutes; }
+    public void setTotalTimeLoggedMinutes(int totalTimeLoggedMinutes) { this.totalTimeLoggedMinutes = totalTimeLoggedMinutes; }
+    public int getTotalTasksAssigned() { return totalTasksAssigned; }
+    public void setTotalTasksAssigned(int totalTasksAssigned) { this.totalTasksAssigned = totalTasksAssigned; }
+    public int getTotalTasksCompleted() { return totalTasksCompleted; }
+    public void setTotalTasksCompleted(int totalTasksCompleted) { this.totalTasksCompleted = totalTasksCompleted; }
+    public int getTasksCompletedWithoutTime() { return tasksCompletedWithoutTime; }
+    public void setTasksCompletedWithoutTime(int tasksCompletedWithoutTime) { this.tasksCompletedWithoutTime = tasksCompletedWithoutTime; }
 }

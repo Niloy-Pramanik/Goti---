@@ -17,6 +17,7 @@ export default function CreateIssueModal({ isOpen, onClose, projectId, milestone
   const [description, setDescription] = useState('');
   const [type, setType] = useState('TASK');
   const [assigneeId, setAssigneeId] = useState('');
+  const [selectedMilestoneId, setSelectedMilestoneId] = useState(milestoneId || '');
   const [error, setError] = useState('');
   
   const queryClient = useQueryClient();
@@ -32,6 +33,16 @@ export default function CreateIssueModal({ isOpen, onClose, projectId, milestone
     enabled: !!teamId && isOpen,
   });
 
+  // Fetch project milestones
+  const { data: milestones } = useQuery({
+    queryKey: ['milestones', projectId],
+    queryFn: async () => {
+      const response = await apiClient.get(`/api/projects/${projectId}/milestones`);
+      return response.data;
+    },
+    enabled: !!projectId && isOpen,
+  });
+
   const createIssueMutation = useMutation({
     mutationFn: async (data: any) => {
       const response = await apiClient.post(`/api/projects/${projectId}/issues`, data);
@@ -39,10 +50,12 @@ export default function CreateIssueModal({ isOpen, onClose, projectId, milestone
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['issues', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['progress'] });
       setTitle('');
       setDescription('');
       setType('TASK');
       setAssigneeId('');
+      setSelectedMilestoneId(milestoneId || '');
       onClose();
     },
     onError: (err: any) => {
@@ -61,7 +74,7 @@ export default function CreateIssueModal({ isOpen, onClose, projectId, milestone
     }
     
     const payload: any = { title, description, type };
-    if (milestoneId) payload.milestoneId = milestoneId;
+    if (selectedMilestoneId) payload.milestoneId = selectedMilestoneId;
     if (assigneeId) payload.assigneeId = assigneeId;
 
     createIssueMutation.mutate(payload);
@@ -120,8 +133,24 @@ export default function CreateIssueModal({ isOpen, onClose, projectId, milestone
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-bold text-slate-700 mb-1">Milestone</label>
+              <select
+                value={selectedMilestoneId}
+                onChange={(e) => setSelectedMilestoneId(e.target.value)}
+                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all bg-white"
+              >
+                <option value="">No Milestone</option>
+                {milestones?.map((m: any) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {teamId && canAssign && (
-              <div>
+              <div className="col-span-2">
                 <label className="block text-sm font-bold text-slate-700 mb-1">Assignee</label>
                 <select
                   value={assigneeId}

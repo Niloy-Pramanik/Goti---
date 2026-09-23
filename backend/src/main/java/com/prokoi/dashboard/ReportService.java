@@ -202,6 +202,26 @@ public class ReportService {
                     userId, member.getMemberId()
             );
             member.setTasks(tasks);
+
+            // 3. Get individual tracking stats for this member (scoped to admin's orgs)
+            jdbc.query(
+                    "SELECT " +
+                    "  (SELECT COALESCE(SUM(tl.duration_minutes), 0) FROM time_logs tl JOIN issues i ON tl.issue_id = i.id JOIN projects p ON i.project_id = p.id JOIN teams t ON p.team_id = t.id JOIN organization_members om ON t.org_id = om.org_id WHERE tl.user_id = ? AND om.user_id = ? AND om.role = 'ADMIN') as total_time_logged, " +
+                    "  (SELECT COUNT(DISTINCT i.id) FROM issues i JOIN projects p ON i.project_id = p.id JOIN teams t ON p.team_id = t.id JOIN organization_members om ON t.org_id = om.org_id WHERE i.assignee_id = ? AND om.user_id = ? AND om.role = 'ADMIN') as total_tasks_assigned, " +
+                    "  (SELECT COUNT(DISTINCT i.id) FROM issues i JOIN projects p ON i.project_id = p.id JOIN teams t ON p.team_id = t.id JOIN organization_members om ON t.org_id = om.org_id WHERE i.assignee_id = ? AND i.status = 'DONE' AND om.user_id = ? AND om.role = 'ADMIN') as total_tasks_completed, " +
+                    "  (SELECT COUNT(DISTINCT i.id) FROM issues i JOIN projects p ON i.project_id = p.id JOIN teams t ON p.team_id = t.id JOIN organization_members om ON t.org_id = om.org_id WHERE i.assignee_id = ? AND i.status = 'DONE' AND om.user_id = ? AND om.role = 'ADMIN' AND NOT EXISTS (SELECT 1 FROM time_logs tl WHERE tl.issue_id = i.id AND tl.user_id = i.assignee_id)) as cheating_tasks",
+                    (rs, rowNum) -> {
+                        member.setTotalTimeLoggedMinutes(rs.getInt("total_time_logged"));
+                        member.setTotalTasksAssigned(rs.getInt("total_tasks_assigned"));
+                        member.setTotalTasksCompleted(rs.getInt("total_tasks_completed"));
+                        member.setTasksCompletedWithoutTime(rs.getInt("cheating_tasks"));
+                        return null;
+                    },
+                    member.getMemberId(), userId,
+                    member.getMemberId(), userId,
+                    member.getMemberId(), userId,
+                    member.getMemberId(), userId
+            );
         }
 
         return members;

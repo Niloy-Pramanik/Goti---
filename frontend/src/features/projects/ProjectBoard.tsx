@@ -147,7 +147,8 @@ export default function ProjectBoard() {
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
                             canAssign={canAssign}
-                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
+                            currentUser={user}
+                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId: assigneeId || null, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
                           />
@@ -195,7 +196,8 @@ export default function ProjectBoard() {
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
                             canAssign={canAssign}
-                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
+                            currentUser={user}
+                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId: assigneeId || null, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
                           />
@@ -243,7 +245,8 @@ export default function ProjectBoard() {
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
                             canAssign={canAssign}
-                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId, updateAssigneeId: true } })}
+                            currentUser={user}
+                            onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId: assigneeId || null, updateAssigneeId: true } })}
                             onLogProgress={() => { setActiveIssueId(issue.id); setIsLogModalOpen(true); }}
                             onLogTime={() => { setActiveIssueId(issue.id); setIsTimeModalOpen(true); }}
                           />
@@ -276,7 +279,7 @@ export default function ProjectBoard() {
   );
 }
 
-function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign, onAssigneeChange, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, teamMembers: any[], canAssign: boolean, onAssigneeChange: (id: string) => void, onLogProgress: () => void, onLogTime: () => void }) {
+function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign, currentUser, onAssigneeChange, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, teamMembers: any[], canAssign: boolean, currentUser: any, onAssigneeChange: (id: string) => void, onLogProgress: () => void, onLogTime: () => void }) {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'BUG': return 'bg-red-500/10 text-red-600 border-red-500/20';
@@ -300,14 +303,14 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign,
         </div>
       </div>
       
-      <h4 className="font-extrabold text-slate-900 text-sm mb-1.5 leading-snug relative z-10">{issue.title}</h4>
+      <h4 className="font-extrabold text-slate-900 text-base mb-1.5 leading-snug relative z-10">{issue.title}</h4>
       
       {issue.description && (
-        <p className="text-xs text-slate-500 leading-relaxed line-clamp-2 mb-4 relative z-10">{issue.description}</p>
+        <p className="text-sm text-slate-500 leading-relaxed line-clamp-2 mb-4 relative z-10">{issue.description}</p>
       )}
       
       <div className="flex items-center justify-between mt-4 pt-3 border-t border-slate-100/80 relative z-10">
-        <div className="flex items-center">
+        <div className="flex flex-col gap-2">
           {canAssign && (
             <select 
               value={issue.assigneeId || ''}
@@ -321,6 +324,12 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign,
               ))}
             </select>
           )}
+
+          {!canAssign && issue.assigneeId && (
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-brand-500 flex items-center justify-center text-[10px] font-bold text-white shadow-sm ring-2 ring-white">
+              {teamMembers.find(m => m.userId === issue.assigneeId)?.name.substring(0, 2).toUpperCase() || 'UN'}
+            </div>
+          )}
         </div>
         
         <div className="flex gap-1.5 items-center">
@@ -329,21 +338,26 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign,
               {Math.floor(issue.totalTimeLogged / 60)}h {issue.totalTimeLogged % 60}m
             </span>
           )}
-          <button 
-            onClick={onLogProgress}
-            className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
-            title="Log Progress/Blocker"
-          >
-            <MessageSquare className="w-3.5 h-3.5" strokeWidth={2.5} />
-          </button>
+          
+          {!canAssign && currentUser?.id === issue.assigneeId && (
+            <>
+              <button 
+                onClick={onLogProgress}
+                className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
+                title="Log Progress/Blocker"
+              >
+                <MessageSquare className="w-3.5 h-3.5" strokeWidth={2.5} />
+              </button>
 
-          <button 
-            onClick={onLogTime}
-            className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
-            title="Log Time"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </button>
+              <button 
+                onClick={onLogTime}
+                className="p-1.5 text-slate-400 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-lg border border-transparent hover:border-brand-100 transition-all shadow-sm"
+                title="Log Time"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

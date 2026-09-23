@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { X, Clock } from 'lucide-react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { X, Clock, Trash2 } from 'lucide-react';
 import apiClient from '../../api/client';
 
 export default function LogTimeModal({ isOpen, onClose, issueId }: { isOpen: boolean, onClose: () => void, issueId: string }) {
@@ -9,6 +9,26 @@ export default function LogTimeModal({ isOpen, onClose, issueId }: { isOpen: boo
   const [description, setDescription] = useState('');
   const [error, setError] = useState('');
   const queryClient = useQueryClient();
+
+  const { data: timeLogs, isLoading } = useQuery({
+    queryKey: ['time-logs', issueId],
+    queryFn: async () => {
+      const response = await apiClient.get(`/api/time-logs/issue/${issueId}`);
+      return response.data;
+    },
+    enabled: isOpen && !!issueId
+  });
+
+  const deleteTimeLogMutation = useMutation({
+    mutationFn: async (timeLogId: string) => {
+      await apiClient.delete(`/api/time-logs/${timeLogId}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['time-logs'] });
+      queryClient.invalidateQueries({ queryKey: ['issues'] });
+      queryClient.invalidateQueries({ queryKey: ['my-issues'] });
+    }
+  });
 
   const logTimeMutation = useMutation({
     mutationFn: async (data: any) => {
@@ -120,6 +140,52 @@ export default function LogTimeModal({ isOpen, onClose, issueId }: { isOpen: boo
             </button>
           </div>
         </form>
+
+        {/* History Section */}
+        <div className="bg-slate-50 border-t border-slate-100 p-6 max-h-[300px] overflow-y-auto">
+          <h3 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-4">Time Log History</h3>
+          
+          {isLoading ? (
+            <div className="text-center py-4 text-sm text-slate-400">Loading history...</div>
+          ) : !timeLogs || timeLogs.length === 0 ? (
+            <div className="text-center py-4 text-sm text-slate-400 border border-dashed border-slate-200 rounded-xl">
+              No time logged yet
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {timeLogs.map((log: any) => (
+                <div key={log.id} className="bg-white border border-slate-200 rounded-xl p-3 flex items-start justify-between gap-3 shadow-sm hover:border-slate-300 transition-colors">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="font-bold text-slate-900 text-sm">
+                        {Math.floor(log.durationMinutes / 60)}h {log.durationMinutes % 60}m
+                      </span>
+                      <span className="text-[10px] text-slate-500 font-medium">
+                        {new Date(log.loggedAt).toLocaleDateString()} {new Date(log.loggedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    {log.description && (
+                      <p className="text-xs text-slate-600 line-clamp-2">{log.description}</p>
+                    )}
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this time log?')) {
+                        deleteTimeLogMutation.mutate(log.id);
+                      }
+                    }}
+                    disabled={deleteTimeLogMutation.isPending}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+                    title="Delete Time Log"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

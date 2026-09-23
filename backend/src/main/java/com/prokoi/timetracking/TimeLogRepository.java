@@ -56,4 +56,32 @@ public class TimeLogRepository {
                 ROW_MAPPER_WITH_JOINS, userId
         );
     }
+
+    public List<TimeLog> findByIssueIdOrderByLoggedAtDesc(UUID issueId) {
+        return jdbc.query(
+                "SELECT t.*, i.title as issue_title, p.name as project_name " +
+                "FROM time_logs t " +
+                "JOIN issues i ON t.issue_id = i.id " +
+                "JOIN projects p ON i.project_id = p.id " +
+                "WHERE t.issue_id = ? " +
+                "ORDER BY t.logged_at DESC",
+                ROW_MAPPER_WITH_JOINS, issueId
+        );
+    }
+
+    public TimeLog findById(UUID id) {
+        List<TimeLog> logs = jdbc.query(
+                "SELECT t.*, i.title as issue_title, p.name as project_name " +
+                "FROM time_logs t " +
+                "JOIN issues i ON t.issue_id = i.id " +
+                "JOIN projects p ON i.project_id = p.id " +
+                "WHERE t.id = ?",
+                ROW_MAPPER_WITH_JOINS, id
+        );
+        return logs.isEmpty() ? null : logs.get(0);
+    }
+
+    public void deleteById(UUID id) {
+        jdbc.update("DELETE FROM time_logs WHERE id = ?", id);
+    }
 }

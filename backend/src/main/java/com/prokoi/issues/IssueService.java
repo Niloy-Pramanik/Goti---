@@ -25,13 +25,12 @@ public class IssueService {
     private final com.prokoi.email.EmailService emailService;
 
     public IssueService(
-        IssueRepository issueRepository, 
-        ProjectService projectService, 
-        TeamService teamService, 
-        com.prokoi.inbox.NotificationService notificationService,
-        com.prokoi.users.UserRepository userRepository,
-        com.prokoi.email.EmailService emailService
-    ) {
+            IssueRepository issueRepository,
+            ProjectService projectService,
+            TeamService teamService,
+            com.prokoi.inbox.NotificationService notificationService,
+            com.prokoi.users.UserRepository userRepository,
+            com.prokoi.email.EmailService emailService) {
         this.issueRepository = issueRepository;
         this.projectService = projectService;
         this.teamService = teamService;
@@ -45,7 +44,7 @@ public class IssueService {
         if (!teamService.isMember(project.getTeamId(), actorId)) {
             throw new ForbiddenException("Only team members can create issues in this project");
         }
-        
+
         if (request.getAssigneeId() != null) {
             if (!teamService.isMember(project.getTeamId(), request.getAssigneeId())) {
                 throw new ForbiddenException("Assignee must be a member of the team");
@@ -65,22 +64,21 @@ public class IssueService {
         issue.setCreatedAt(OffsetDateTime.now());
 
         Issue saved = issueRepository.save(issue);
-        
+
         if (saved.getAssigneeId() != null && !saved.getAssigneeId().equals(actorId)) {
             notificationService.createNotification(
-                saved.getAssigneeId(),
-                "New Issue Assigned",
-                "You have been assigned to issue: " + saved.getTitle()
-            );
+                    saved.getAssigneeId(),
+                    "New Issue Assigned",
+                    "You have been assigned to issue: " + saved.getTitle());
             userRepository.findById(saved.getAssigneeId()).ifPresent(user -> {
                 emailService.sendEmail(
-                    user.getEmail(),
-                    "New Task Assigned: " + saved.getTitle(),
-                    "Hello " + user.getName() + ",\n\nYou have been assigned a new task: " + saved.getTitle() + "\n\nLog in to your dashboard to view it."
-                );
+                        user.getEmail(),
+                        "New Task Assigned: " + saved.getTitle(),
+                        "Hello " + user.getName() + ",\n\nYou have been assigned a new task: " + saved.getTitle()
+                                + "\n\nLog in to your dashboard to view it.");
             });
         }
-        
+
         return mapToResponse(saved);
     }
 
@@ -98,58 +96,61 @@ public class IssueService {
     public IssueResponse updateIssue(UUID issueId, UpdateIssueRequest request, UUID actorId) {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NotFoundException("Issue not found"));
-        
+
         var project = projectService.getProjectEntity(issue.getProjectId());
         if (!teamService.isMember(project.getTeamId(), actorId)) {
             throw new ForbiddenException("Only team members can update issues");
         }
 
-        if (request.getTitle() != null) issue.setTitle(request.getTitle());
-        if (request.getDescription() != null) issue.setDescription(request.getDescription());
-        if (request.getType() != null) issue.setType(request.getType());
+        if (request.getTitle() != null)
+            issue.setTitle(request.getTitle());
+        if (request.getDescription() != null)
+            issue.setDescription(request.getDescription());
+        if (request.getType() != null)
+            issue.setType(request.getType());
         if (request.getStatus() != null && !request.getStatus().equals(issue.getStatus())) {
             issue.setStatus(request.getStatus());
-            
+
             // Notify team leads
             List<UUID> leads = teamService.getLeads(project.getTeamId());
             for (UUID leadId : leads) {
                 if (!leadId.equals(actorId)) {
                     notificationService.createNotification(
-                        leadId,
-                        "Issue Status Changed",
-                        "Issue '" + issue.getTitle() + "' status changed to " + request.getStatus()
-                    );
+                            leadId,
+                            "Issue Status Changed",
+                            "Issue '" + issue.getTitle() + "' status changed to " + request.getStatus());
                 }
             }
         }
-        
+
         if (request.isUpdateMilestoneId()) {
             issue.setMilestoneId(request.getMilestoneId());
         }
-        
+
         if (request.isUpdateDueDate()) {
             issue.setDueDate(request.getDueDate());
         }
-        
+
         if (request.isUpdateAssigneeId()) {
-            if (request.getAssigneeId() != null && !teamService.isMember(project.getTeamId(), request.getAssigneeId())) {
+            if (request.getAssigneeId() != null
+                    && !teamService.isMember(project.getTeamId(), request.getAssigneeId())) {
                 throw new ForbiddenException("Assignee must be a member of the team");
             }
             UUID oldAssignee = issue.getAssigneeId();
             issue.setAssigneeId(request.getAssigneeId());
-            
-            if (request.getAssigneeId() != null && !request.getAssigneeId().equals(oldAssignee) && !request.getAssigneeId().equals(actorId)) {
+
+            if (request.getAssigneeId() != null && !request.getAssigneeId().equals(oldAssignee)
+                    && !request.getAssigneeId().equals(actorId)) {
                 notificationService.createNotification(
-                    request.getAssigneeId(),
-                    "Issue Re-assigned",
-                    "You have been assigned to issue: " + issue.getTitle()
-                );
+                        request.getAssigneeId(),
+                        "Issue Re-assigned",
+                        "You have been assigned to issue: " + issue.getTitle());
                 userRepository.findById(request.getAssigneeId()).ifPresent(user -> {
                     emailService.sendEmail(
-                        user.getEmail(),
-                        "Task Re-assigned to You: " + issue.getTitle(),
-                        "Hello " + user.getName() + ",\n\nYou have been assigned a new task: " + issue.getTitle() + "\n\nLog in to your dashboard to view it."
-                    );
+                            user.getEmail(),
+                            "Task Re-assigned to You: " + issue.getTitle(),
+                            "Hello " + user.getName() + ",\n\nYou have been assigned a new task: " + issue.getTitle()
+                                    + "\n\nLog in to your dashboard to view it.");
                 });
             }
         }
@@ -157,16 +158,16 @@ public class IssueService {
         issueRepository.update(issue);
         return mapToResponse(issue);
     }
-    
+
     public IssueResponse getIssue(UUID issueId, UUID actorId) {
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new NotFoundException("Issue not found"));
-                
+
         var project = projectService.getProjectEntity(issue.getProjectId());
         if (!teamService.isMember(project.getTeamId(), actorId)) {
             throw new ForbiddenException("Only team members can view this issue");
         }
-        
+
         return mapToResponse(issue);
     }
 
@@ -182,7 +183,6 @@ public class IssueService {
                 issue.getDescription(),
                 issue.getCreatedAt(),
                 issue.getDueDate(),
-                issue.getTotalTimeLogged()
-        );
+                issue.getTotalTimeLogged());
     }
 }

@@ -298,9 +298,40 @@ export default function Reports() {
                     <h3 className="text-lg font-bold text-slate-900">{member.memberName}</h3>
                     <p className="text-sm text-slate-500">{member.email}</p>
                   </div>
-                  <div className="ml-auto bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
-                    <span className="text-sm font-bold text-slate-700">{member.tasks.length}</span>
-                    <span className="text-xs text-slate-500 font-medium ml-1">Active Tasks</span>
+                  <div className="ml-auto flex items-center gap-3">
+                    {/* Cheating Flag */}
+                    {member.tasksCompletedWithoutTime > 0 && (
+                      <div className="bg-red-50 px-3 py-1.5 rounded-lg border border-red-200 flex items-center gap-1.5">
+                        <AlertCircle className="w-4 h-4 text-red-500" />
+                        <span className="text-sm font-bold text-red-700">{member.tasksCompletedWithoutTime}</span>
+                        <span className="text-xs text-red-600 font-medium">Done w/o Time</span>
+                      </div>
+                    )}
+                    
+                    {/* Total Time Logged */}
+                    <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      <span className="text-sm font-bold text-slate-700">
+                        {Math.floor(member.totalTimeLoggedMinutes / 60)}h {member.totalTimeLoggedMinutes % 60}m
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium">Logged</span>
+                    </div>
+
+                    {/* Task Completion */}
+                    <div className="bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5">
+                      <CheckCircle className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-bold text-slate-700">
+                        {member.totalTasksCompleted} / {member.totalTasksAssigned}
+                      </span>
+                      <span className="text-xs text-slate-500 font-medium">Done</span>
+                    </div>
+
+                    {/* Active Tasks */}
+                    <div className="bg-brand-50 px-3 py-1.5 rounded-lg border border-brand-100 flex items-center gap-1.5">
+                      <Briefcase className="w-4 h-4 text-brand-500" />
+                      <span className="text-sm font-bold text-brand-700">{member.tasks.length}</span>
+                      <span className="text-xs text-brand-600 font-medium">Active</span>
+                    </div>
                   </div>
                 </div>
 

@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Loader2, Circle, CheckCircle2, BarChart2, Plus, Calendar, Clock, MessageSquare } from 'lucide-react';
+import { Loader2, Circle, CheckCircle2, BarChart2, Plus, Trash2, Calendar, Clock, MessageSquare } from 'lucide-react';
 import apiClient from '../../api/client';
 import LogProgressModal from '../issues/LogProgressModal';
 import LogTimeModal from '../issues/LogTimeModal';
@@ -11,6 +11,7 @@ export default function MyTasks() {
   const [isLogModalOpen, setIsLogModalOpen] = useState(false);
   const [isTimeModalOpen, setIsTimeModalOpen] = useState(false);
   const [isNewTaskModalOpen, setIsNewTaskModalOpen] = useState(false);
+  const [showCompleted, setShowCompleted] = useState(true);
   
   const queryClient = useQueryClient();
 
@@ -50,16 +51,40 @@ export default function MyTasks() {
     updateIssueStatusMutation.mutate({ issueId: issue.id, status: nextStatus });
   };
 
+  const completedCount = issues?.filter((i: any) => i.status === 'DONE').length || 0;
+
+  const visibleIssues = useMemo(() => {
+    if (!issues) return [];
+    return showCompleted ? issues : issues.filter((i: any) => i.status !== 'DONE');
+  }, [issues, showCompleted]);
+
+  const handleClearCompleted = () => {
+    setShowCompleted(false);
+  };
+
   return (
     <div className="max-w-7xl mx-auto py-8 px-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <h1 className="text-xl font-bold text-slate-800">My Tasks</h1>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors">
-            <Calendar className="w-3.5 h-3.5" />
-            Due Date
-          </button>
+          {completedCount > 0 && (
+            <button 
+              onClick={handleClearCompleted}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-md hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Clear Completed ({completedCount})
+            </button>
+          )}
+          {!showCompleted && completedCount > 0 && (
+            <button 
+              onClick={() => setShowCompleted(true)}
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-slate-500 bg-white border border-slate-200 rounded-md hover:bg-slate-50 transition-colors"
+            >
+              Show Completed
+            </button>
+          )}
           <button 
             onClick={() => setIsNewTaskModalOpen(true)}
             className="flex items-center gap-2 px-4 py-2 bg-brand-600 text-white rounded-xl font-bold hover:bg-brand-700 transition-colors shadow-sm"
@@ -75,13 +100,13 @@ export default function MyTasks() {
         <h2 className="text-sm font-bold text-slate-700 mb-4">Other</h2>
         
         <div className="flex flex-col">
-          {issues?.length === 0 && (
+          {visibleIssues.length === 0 && (
             <div className="text-center py-10 text-sm text-slate-400">
-              No tasks assigned to you.
+              {issues?.length > 0 ? 'All tasks completed and cleared! 🎉' : 'No tasks assigned to you.'}
             </div>
           )}
           
-          {issues?.map((issue: any) => (
+          {visibleIssues.map((issue: any) => (
             <div 
               key={issue.id} 
               className="group flex items-center justify-between py-2.5 px-3 -mx-3 rounded-lg border border-transparent hover:border-slate-200 hover:shadow-sm transition-all bg-transparent hover:bg-white"
