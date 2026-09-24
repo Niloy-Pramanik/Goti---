@@ -8,5 +8,9 @@ public record MilestoneResponse(
     UUID projectId,
     String name,
     Instant dueDate,
-    Instant createdAt
+    Instant createdAt,
+    String description,
+    String status,
+    Integer totalTasks,
+    Integer completedTasks
 ) {}

@@ -29,8 +29,8 @@ public class MilestoneService {
 
     public MilestoneResponse createMilestone(UUID projectId, CreateMilestoneRequest request, UUID actorId) {
         var project = projectService.getProjectEntity(projectId);
-        if (!teamService.isMember(project.getTeamId(), actorId)) {
-            throw new ForbiddenException("Only team members can create milestones");
+        if (!teamService.isLead(project.getTeamId(), actorId)) {
+            throw new ForbiddenException("Only team LEADs can create milestones");
         }
 
         Milestone milestone = new Milestone();
@@ -39,6 +39,8 @@ public class MilestoneService {
         milestone.setName(request.getName());
         milestone.setDueDate(request.getDueDate());
         milestone.setCreatedAt(Instant.now());
+        milestone.setDescription(request.getDescription());
+        milestone.setStatus(request.getStatus() != null ? request.getStatus() : "PENDING");
 
         milestoneRepository.create(milestone);
         return mapToResponse(milestone);
@@ -68,12 +70,17 @@ public class MilestoneService {
     }
 
     private MilestoneResponse mapToResponse(Milestone milestone) {
+        MilestoneProgressResponse progress = milestoneRepository.getProgress(milestone.getId());
         return new MilestoneResponse(
                 milestone.getId(),
                 milestone.getProjectId(),
                 milestone.getName(),
                 milestone.getDueDate(),
-                milestone.getCreatedAt()
+                milestone.getCreatedAt(),
+                milestone.getDescription(),
+                milestone.getStatus(),
+                (int) progress.totalTasks(),
+                (int) progress.completedTasks()
         );
     }
 }

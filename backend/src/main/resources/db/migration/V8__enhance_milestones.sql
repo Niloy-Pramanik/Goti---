@@ -1,0 +1,3 @@
+ALTER TABLE milestones 
+ADD COLUMN description TEXT,
+ADD COLUMN status VARCHAR(50) DEFAULT 'PENDING';

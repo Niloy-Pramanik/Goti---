@@ -9,6 +9,8 @@ public class Milestone {
     private String name;
     private Instant dueDate;
     private Instant createdAt;
+    private String description;
+    private String status;
 
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
@@ -20,4 +22,8 @@ public class Milestone {
     public void setDueDate(Instant dueDate) { this.dueDate = dueDate; }
     public Instant getCreatedAt() { return createdAt; }
     public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }

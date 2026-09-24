@@ -29,17 +29,21 @@ public class MilestoneRepository {
             milestone.setDueDate(dueDate.toInstant());
         }
         milestone.setCreatedAt(rs.getTimestamp("created_at").toInstant());
+        milestone.setDescription(rs.getString("description"));
+        milestone.setStatus(rs.getString("status"));
         return milestone;
     };
 
     public void create(Milestone milestone) {
-        String sql = "INSERT INTO milestones (id, project_id, name, due_date, created_at) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO milestones (id, project_id, name, due_date, created_at, description, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
         jdbcTemplate.update(sql,
                 milestone.getId(),
                 milestone.getProjectId(),
                 milestone.getName(),
                 milestone.getDueDate() != null ? Timestamp.from(milestone.getDueDate()) : null,
-                Timestamp.from(milestone.getCreatedAt())
+                Timestamp.from(milestone.getCreatedAt()),
+                milestone.getDescription(),
+                milestone.getStatus()
         );
     }
 
