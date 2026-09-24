@@ -19,7 +19,8 @@ export default function TimeTracking() {
     );
   }
 
-  const totalMinutes = timeLogs?.reduce((acc: number, log: any) => acc + log.durationMinutes, 0) || 0;
+  const logsArray = Array.isArray(timeLogs) ? timeLogs : [];
+  const totalMinutes = logsArray.reduce((acc: number, log: any) => acc + log.durationMinutes, 0);
   const totalHours = Math.floor(totalMinutes / 60);
   const remainingMinutes = totalMinutes % 60;
 
@@ -54,7 +55,7 @@ export default function TimeTracking() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {timeLogs?.map((log: any) => (
+            {logsArray.map((log: any) => (
               <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
                 <td className="px-6 py-4 text-sm font-medium text-slate-900 whitespace-nowrap">
                   {new Date(log.loggedAt).toLocaleDateString()}
@@ -71,7 +72,7 @@ export default function TimeTracking() {
                 </td>
               </tr>
             ))}
-            {timeLogs?.length === 0 && (
+            {logsArray.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-6 py-12 text-center text-slate-500">
                   <Clock className="w-8 h-8 mx-auto text-slate-300 mb-3" />

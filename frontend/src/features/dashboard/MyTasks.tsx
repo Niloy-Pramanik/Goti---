@@ -35,14 +35,6 @@ export default function MyTasks() {
     }
   });
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center h-[80vh]">
-        <Loader2 className="w-10 h-10 text-brand-500 animate-spin" />
-      </div>
-    );
-  }
-
   // Next status rotation: TO_DO -> IN_PROGRESS -> DONE -> TO_DO
   const handleStatusToggle = (issue: any) => {
     let nextStatus = 'IN_PROGRESS';
@@ -51,12 +43,20 @@ export default function MyTasks() {
     updateIssueStatusMutation.mutate({ issueId: issue.id, status: nextStatus });
   };
 
-  const completedCount = issues?.filter((i: any) => i.status === 'DONE').length || 0;
+  const issuesArray = Array.isArray(issues) ? issues : [];
+  const completedCount = issuesArray.filter((i: any) => i.status === 'DONE').length;
 
   const visibleIssues = useMemo(() => {
-    if (!issues) return [];
-    return showCompleted ? issues : issues.filter((i: any) => i.status !== 'DONE');
-  }, [issues, showCompleted]);
+    return showCompleted ? issuesArray : issuesArray.filter((i: any) => i.status !== 'DONE');
+  }, [issuesArray, showCompleted]);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[80vh]">
+        <Loader2 className="w-10 h-10 text-brand-500 animate-spin" />
+      </div>
+    );
+  }
 
   const handleClearCompleted = () => {
     setShowCompleted(false);

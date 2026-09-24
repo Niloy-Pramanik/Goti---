@@ -37,7 +37,18 @@ export default function Sidebar() {
     enabled: !!user,
   });
 
-  const unreadCount = notifications?.filter((n: any) => !n.isRead).length || 0;
+  const { data: orgs } = useQuery({
+    queryKey: ['organizations'],
+    queryFn: async () => {
+      const response = await apiClient.get('/api/organizations');
+      return response.data;
+    },
+    enabled: !!user,
+  });
+
+  const isOrgAdmin = Array.isArray(orgs) && orgs.some((org: any) => org.myRole === 'ADMIN' || org.userRole === 'ADMIN');
+
+  const unreadCount = Array.isArray(notifications) ? notifications.filter((n: any) => !n.isRead).length : 0;
 
   return (
     <div className="w-64 h-screen bg-white/70 backdrop-blur-md border-r border-slate-200/60 flex flex-col justify-between py-6 flex-shrink-0">
@@ -142,17 +153,19 @@ export default function Sidebar() {
               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-clock"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
               Time Tracking
             </Link>
-            <Link
-              to="/reports"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                location.pathname === '/reports'
-                  ? 'bg-slate-100/80 text-slate-900 shadow-sm border border-slate-200/50'
-                  : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
-              }`}
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-              Reports
-            </Link>
+            {isOrgAdmin && (
+              <Link
+                to="/reports"
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                  location.pathname === '/reports'
+                    ? 'bg-slate-100/80 text-slate-900 shadow-sm border border-slate-200/50'
+                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bar-chart-2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Reports
+              </Link>
+            )}
             
             <div className="pt-4 pb-1">
               <p className="px-3 text-xs font-black text-slate-400 uppercase tracking-wider">Workspaces</p>
