@@ -12,12 +12,14 @@ interface CreateMilestoneModalProps {
 export default function CreateMilestoneModal({ isOpen, onClose, projectId }: CreateMilestoneModalProps) {
   const [name, setName] = useState('');
   const [dueDate, setDueDate] = useState('');
+  const [description, setDescription] = useState('');
+  const [status, setStatus] = useState('PENDING');
   const [error, setError] = useState('');
   
   const queryClient = useQueryClient();
 
   const createMilestoneMutation = useMutation({
-    mutationFn: async (data: { name: string; dueDate?: string }) => {
+    mutationFn: async (data: { name: string; dueDate?: string; description?: string; status: string }) => {
       const response = await apiClient.post(`/api/projects/${projectId}/milestones`, data);
       return response.data;
     },
@@ -25,6 +27,8 @@ export default function CreateMilestoneModal({ isOpen, onClose, projectId }: Cre
       queryClient.invalidateQueries({ queryKey: ['milestones', projectId] });
       setName('');
       setDueDate('');
+      setDescription('');
+      setStatus('PENDING');
       onClose();
     },
     onError: (err: any) => {
@@ -43,7 +47,9 @@ export default function CreateMilestoneModal({ isOpen, onClose, projectId }: Cre
     }
     createMilestoneMutation.mutate({ 
       name, 
-      dueDate: dueDate ? new Date(dueDate).toISOString() : undefined 
+      dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+      description,
+      status
     });
   };
 
@@ -84,6 +90,29 @@ export default function CreateMilestoneModal({ isOpen, onClose, projectId }: Cre
               onChange={(e) => setDueDate(e.target.value)}
               className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1">Description (Optional)</label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all min-h-[80px]"
+              placeholder="What are the goals of this milestone?"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-slate-700 mb-1">Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition-all bg-white"
+            >
+              <option value="PENDING">Pending</option>
+              <option value="ACTIVE">Active</option>
+              <option value="COMPLETED">Completed</option>
+            </select>
           </div>
 
           <div className="pt-4 flex gap-3">

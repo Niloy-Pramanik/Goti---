@@ -35,6 +35,14 @@ export default function ProjectBoard() {
     },
   });
 
+  const { data: milestones } = useQuery({
+    queryKey: ['milestones', projectId],
+    queryFn: async () => {
+      const response = await apiClient.get(`/api/projects/${projectId}/milestones`);
+      return response.data;
+    },
+  });
+
   const { data: teamMembers } = useQuery({
     queryKey: ['teamMembers', project?.teamId],
     queryFn: async () => {
@@ -146,6 +154,7 @@ export default function ProjectBoard() {
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
+                            milestones={milestones || []}
                             canAssign={canAssign}
                             currentUser={user}
                             onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId: assigneeId || null, updateAssigneeId: true } })}
@@ -195,6 +204,7 @@ export default function ProjectBoard() {
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
+                            milestones={milestones || []}
                             canAssign={canAssign}
                             currentUser={user}
                             onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId: assigneeId || null, updateAssigneeId: true } })}
@@ -244,6 +254,7 @@ export default function ProjectBoard() {
                             dragHandleProps={provided.dragHandleProps}
                             isDragging={snapshot.isDragging}
                             teamMembers={teamMembers || []}
+                            milestones={milestones || []}
                             canAssign={canAssign}
                             currentUser={user}
                             onAssigneeChange={(assigneeId) => updateIssueMutation.mutate({ issueId: issue.id, payload: { assigneeId: assigneeId || null, updateAssigneeId: true } })}
@@ -279,7 +290,7 @@ export default function ProjectBoard() {
   );
 }
 
-function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign, currentUser, onAssigneeChange, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, teamMembers: any[], canAssign: boolean, currentUser: any, onAssigneeChange: (id: string) => void, onLogProgress: () => void, onLogTime: () => void }) {
+function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, milestones, canAssign, currentUser, onAssigneeChange, onLogProgress, onLogTime }: { issue: any, dragHandleProps: any, isDragging: boolean, teamMembers: any[], milestones: any[], canAssign: boolean, currentUser: any, onAssigneeChange: (id: string) => void, onLogProgress: () => void, onLogTime: () => void }) {
   const getTypeColor = (type: string) => {
     switch (type) {
       case 'BUG': return 'bg-red-500/10 text-red-600 border-red-500/20';
@@ -295,9 +306,16 @@ function IssueCard({ issue, dragHandleProps, isDragging, teamMembers, canAssign,
       <div className="absolute -top-10 -right-10 w-24 h-24 bg-gradient-to-br from-brand-100 to-transparent rounded-full blur-xl opacity-60 pointer-events-none"></div>
 
       <div className="flex justify-between items-start mb-3 group relative z-10">
-        <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border ${getTypeColor(issue.type)}`}>
-          {issue.type}
-        </span>
+        <div className="flex gap-2 items-center">
+          <span className={`text-[10px] font-black px-2.5 py-1 rounded-lg uppercase tracking-wider border ${getTypeColor(issue.type)}`}>
+            {issue.type}
+          </span>
+          {issue.milestoneId && (
+            <span className="text-[10px] font-bold px-2 py-1 rounded border bg-slate-50 text-slate-500 border-slate-200">
+              {milestones.find((m: any) => m.id === issue.milestoneId)?.name || 'Milestone'}
+            </span>
+          )}
+        </div>
         <div {...dragHandleProps} className="text-slate-300 hover:text-slate-600 hover:bg-slate-100 rounded-lg cursor-grab active:cursor-grabbing p-1.5 -mr-2 transition-colors">
           <GripVertical className="w-4 h-4" />
         </div>
