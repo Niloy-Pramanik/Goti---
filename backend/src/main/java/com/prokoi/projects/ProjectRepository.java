@@ -69,17 +69,19 @@ public class ProjectRepository {
     }
 
     /**
-     * Update resource links independently (PATCH semantics).
+     * Update project independently (PATCH semantics).
      * Only updates non-null fields.
      */
-    public void updateResourceLinks(UUID id, String repoLink, String meetingLink, String storageLink) {
+    public void updateProject(UUID id, String name, String description, String repoLink, String meetingLink, String storageLink) {
         jdbc.update(
                 "UPDATE projects SET " +
+                "name = COALESCE(?, name), " +
+                "description = COALESCE(?, description), " +
                 "repo_link = COALESCE(?, repo_link), " +
                 "meeting_link = COALESCE(?, meeting_link), " +
                 "storage_link = COALESCE(?, storage_link) " +
                 "WHERE id = ?",
-                repoLink, meetingLink, storageLink, id
+                name, description, repoLink, meetingLink, storageLink, id
         );
     }
 

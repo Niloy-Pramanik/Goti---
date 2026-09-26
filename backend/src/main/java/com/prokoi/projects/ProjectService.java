@@ -84,10 +84,10 @@ public class ProjectService {
     }
 
     /**
-     * Update resource links. LEAD only. (FR-4.3)
+     * Update project. LEAD only. (FR-4.3)
      */
     @Transactional
-    public ProjectResponse updateProjectLinks(UUID projectId, UpdateProjectRequest request, UUID actorId) {
+    public ProjectResponse updateProject(UUID projectId, UpdateProjectRequest request, UUID actorId) {
         Project project = projectRepository.findById(projectId)
                 .orElseThrow(() -> new NotFoundException("Project not found"));
 
@@ -95,8 +95,10 @@ public class ProjectService {
             throw new ForbiddenException("Only team LEADs can update project resource links");
         }
 
-        projectRepository.updateResourceLinks(
+        projectRepository.updateProject(
                 projectId,
+                request.getName(),
+                request.getDescription(),
                 request.getRepoLink(),
                 request.getMeetingLink(),
                 request.getStorageLink()

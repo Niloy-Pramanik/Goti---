@@ -1,10 +1,15 @@
+import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { LayoutGrid, Loader2, ExternalLink, Clock, Users } from 'lucide-react';
+import { LayoutGrid, Loader2, ExternalLink, Clock, Users, Pencil } from 'lucide-react';
 import apiClient from '../../api/client';
+import { useAuthStore } from '../../store/authStore';
+import EditProjectModal from './EditProjectModal';
 
 export default function ProjectOverview() {
   const { projectId } = useParams<{ projectId: string }>();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const { user } = useAuthStore();
 
   const { data: project, isLoading: projectLoading } = useQuery({
     queryKey: ['project', projectId],
@@ -32,6 +37,9 @@ export default function ProjectOverview() {
     },
     enabled: !!project?.teamId,
   });
+
+  const myTeamRole = teamMembers?.find((m: any) => m.userId === user?.id)?.role;
+  const canEdit = myTeamRole === 'LEAD';
 
   if (projectLoading) {
     return (
@@ -69,12 +77,22 @@ export default function ProjectOverview() {
       {/* Header Section */}
       <div className="flex items-start gap-6 bg-white/40 backdrop-blur-md p-8 rounded-[2rem] border border-white/60 shadow-sm">
         <div className="flex-grow">
-          <h1 className="text-4xl font-extrabold text-slate-900 flex items-center gap-4">
-            <div className="w-12 h-12 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center shadow-sm">
-              <LayoutGrid className="w-6 h-6" />
-            </div>
-            {project.name}
-          </h1>
+          <div className="flex items-center justify-between">
+            <h1 className="text-4xl font-extrabold text-slate-900 flex items-center gap-4">
+              <div className="w-12 h-12 bg-brand-50 text-brand-600 rounded-2xl flex items-center justify-center shadow-sm">
+                <LayoutGrid className="w-6 h-6" />
+              </div>
+              {project.name}
+            </h1>
+            {canEdit && (
+              <button
+                onClick={() => setIsEditModalOpen(true)}
+                className="flex items-center gap-2 text-sm font-bold text-slate-600 bg-white px-4 py-2 rounded-xl border border-slate-200 hover:shadow-md transition-all"
+              >
+                <Pencil className="w-4 h-4" /> Edit Project
+              </button>
+            )}
+          </div>
           {project.description && (
             <p className="text-slate-500 mt-4 text-lg font-medium max-w-3xl">{project.description}</p>
           )}
@@ -150,6 +168,12 @@ export default function ProjectOverview() {
         </div>
 
       </div>
+
+      <EditProjectModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        project={project}
+      />
     </div>
   );
 }
