@@ -6,6 +6,13 @@ echo "Stopping any existing instances on ports 8080 and 5174..."
 lsof -ti:8080 | xargs kill -9 2>/dev/null || true
 lsof -ti:5174 | xargs kill -9 2>/dev/null || true
 
+# Export variables from .env so Spring Boot can pick them up
+if [ -f .env ]; then
+  set -a
+  source .env
+  set +a
+fi
+
 # Start the Spring Boot backend in the background
 cd backend
 ./mvnw spring-boot:run &

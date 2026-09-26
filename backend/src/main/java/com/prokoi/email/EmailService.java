@@ -26,8 +26,14 @@ public class EmailService {
         try {
             mailSender.send(message);
             System.out.println("Email successfully sent to " + to);
+            System.out.println("Email Content:\n" + text);
         } catch (Exception e) {
             System.err.println("Failed to send email to " + to + ": " + e.getMessage());
+            System.out.println("==== DEVELOPMENT MODE: EMAIL CONTENT FALLBACK ====");
+            System.out.println("To: " + to);
+            System.out.println("Subject: " + subject);
+            System.out.println("Body:\n" + text);
+            System.out.println("==================================================");
         }
     }
 }
